@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:project2/herbalife/public/constants/Constants.dart';
+import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:project2/herbalife/public/page/register2.dart';
 import 'package:project2/herbalife/public/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +24,7 @@ class _RegisterState extends State<Register>
   AnimationController? _animController;
   Animation<double>? _fadeAnim;
   Animation<Offset>? _slideAnim;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -305,45 +306,85 @@ class _RegisterState extends State<Register>
                                 ),
                               ),
                               const SizedBox(height: 24),
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // fields
+                                    _buildLabel('Full Name'),
+                                    const SizedBox(height: 6),
+                                    _buildField(
+                                      controller: nameController,
+                                      hint: 'Enter your full name',
+                                      icon: Icons.person_outline_rounded,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your full name';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 16),
 
-                              // fields
-                              _buildLabel('Full Name'),
-                              const SizedBox(height: 6),
-                              _buildField(
-                                controller: nameController,
-                                hint: 'Enter your full name',
-                                icon: Icons.person_outline_rounded,
-                              ),
-                              const SizedBox(height: 16),
+                                    _buildLabel('Address'),
+                                    const SizedBox(height: 6),
+                                    _buildField(
+                                      controller: addresssController,
+                                      hint: 'Enter your address',
+                                      icon: Icons.location_on_outlined,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your address';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 16),
 
-                              _buildLabel('Address'),
-                              const SizedBox(height: 6),
-                              _buildField(
-                                controller: addresssController,
-                                hint: 'Enter your address',
-                                icon: Icons.location_on_outlined,
-                              ),
-                              const SizedBox(height: 16),
+                                    _buildLabel('Phone Number'),
+                                    const SizedBox(height: 6),
+                                    _buildField(
+                                      controller: phoneController,
+                                      hint: 'Enter your phone number',
+                                      icon: Icons.phone_outlined,
+                                      keyboardType: TextInputType.phone,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your full number';
+                                        }
+                                        if (int.tryParse(value) == null) {
+                                          return 'Please enter a valid number';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 16),
 
-                              _buildLabel('Phone Number'),
-                              const SizedBox(height: 6),
-                              _buildField(
-                                controller: phoneController,
-                                hint: 'Enter your phone number',
-                                icon: Icons.phone_outlined,
-                                keyboardType: TextInputType.phone,
-                              ),
-                              const SizedBox(height: 16),
+                                    _buildLabel('Email Address'),
+                                    const SizedBox(height: 6),
+                                    _buildField(
+                                      controller: emailController,
+                                      hint: 'Enter your email',
+                                      icon: Icons.mail_outline_rounded,
+                                      keyboardType: TextInputType.emailAddress,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your email';
+                                        }
+                                        if (!RegExp(
+                                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                        ).hasMatch(value)) {
+                                          return 'Enter a valid email';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 28),
 
-                              _buildLabel('Email Address'),
-                              const SizedBox(height: 6),
-                              _buildField(
-                                controller: emailController,
-                                hint: 'Enter your email',
-                                icon: Icons.mail_outline_rounded,
-                                keyboardType: TextInputType.emailAddress,
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 28),
 
                               // Register button
                               SizedBox(
@@ -353,6 +394,46 @@ class _RegisterState extends State<Register>
                                   onPressed: authProvider.isLoading
                                       ? null
                                       : () async {
+                                          if (_image == null) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: const Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.error_outline,
+                                                      color: Colors.white,
+                                                      size: 20,
+                                                    ),
+                                                    SizedBox(width: 10),
+                                                    Text(
+                                                      'Please select a photo',
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                backgroundColor: Colors.red,
+
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
+                                              ),
+                                            );
+                                            return;
+                                          }
+                                          if (!_formKey.currentState!.validate()) {
+                                            return;
+                                          }
                                           await authProvider.register(
                                             nameController.text,
                                             addresssController.text,
@@ -554,8 +635,10 @@ class _RegisterState extends State<Register>
     required String hint,
     required IconData icon,
     TextInputType? keyboardType,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
+      validator: validator,
       controller: controller,
       keyboardType: keyboardType,
       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:project2/herbalife/public/constants/Constants.dart';
+import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:project2/herbalife/public/page/login.dart';
 import 'package:project2/herbalife/public/page/product.dart';
 import 'package:project2/herbalife/public/provider/auth_provider.dart';

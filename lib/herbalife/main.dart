@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:project2/data/notifier.dart';
 import 'package:project2/herbalife/l10n/app_localizations.dart';
 import 'package:project2/herbalife/public/page/info.dart';
 import 'package:project2/herbalife/public/provider/data_provider.dart';
@@ -79,7 +78,6 @@ class _MainState extends State<Main> {
               valueListenable: isDark,
               builder: (context, isDarkMode, child) {
                 return MaterialApp(
-                  useInheritedMediaQuery: true,
                   locale: value,
                   localizationsDelegates: AppLocalizations.localizationsDelegates,
                   supportedLocales: AppLocalizations.supportedLocales,

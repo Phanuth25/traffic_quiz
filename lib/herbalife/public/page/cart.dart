@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project2/herbalife/public/constants/Constants.dart';
+import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:project2/herbalife/public/page/payment_screen.dart';
 import 'package:project2/herbalife/public/provider/auth_provider.dart';
 import 'package:project2/herbalife/public/widget/welcome.dart';

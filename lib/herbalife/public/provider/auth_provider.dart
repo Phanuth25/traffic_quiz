@@ -5,12 +5,12 @@ import 'package:http/http.dart' as http;
 import 'package:project2/herbalife/public/model/cart_model.dart';
 import 'dart:convert';
 import 'package:project2/herbalife/public/provider/data_provider.dart';
+import 'package:project2/herbalife/public/constants/constants.dart';
 
 class Authprovider extends ChangeNotifier {
   final SecureStorageProvider dataProvider = SecureStorageProvider();
   String? message;
   bool isLoading = false;
-  final String _accounturl = "http://10.0.2.2:3000/api";
   String? userToken;
   String? userId; // Store as String (Member ID)
   String? id; // Store as String (Database Primary Key)
@@ -27,7 +27,7 @@ class Authprovider extends ChangeNotifier {
     notifyListeners();
     try {
       final response = await http.post(
-        Uri.parse("$_accounturl/login"),
+        Uri.parse("$accounturl/login"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'userid': userid, 'password': password}),
       );
@@ -93,7 +93,7 @@ class Authprovider extends ChangeNotifier {
       }
 
       final response = await http.get(
-        Uri.parse("$_accounturl/profile/$id"),
+        Uri.parse("$accounturl/profile/$id"),
         headers: {'Authorization': 'Bearer ${userToken ?? ""}'},
       );
       final data = json.decode(response.body);
@@ -133,7 +133,7 @@ class Authprovider extends ChangeNotifier {
     invoiceId = null;
     try {
       final response = await http.post(
-        Uri.parse("$_accounturl/postitem"),
+        Uri.parse("$accounturl/postitem"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'userid': userid,
@@ -174,19 +174,14 @@ class Authprovider extends ChangeNotifier {
     invoiceId = null;
     try {
       final response = await http.patch(
-        Uri.parse("$_accounturl/postquantity"),
+        Uri.parse("$accounturl/postquantity"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'invoiceid': invoiceid, 'quantity': quantity}),
       );
       final data = json.decode(response.body);
       if (response.statusCode == 200) {
         message = data['message'];
-        // find the item and update its quantity in memory
-        final index = cartItems.indexWhere((item) => item.id == invoiceid);
-        if (index != -1) {
-          cartItems[index].quantity = quantity; // update in place
-          cartItems[index].point = point!;
-        }
+        await fetchCartItems(); // ← just re-fetch everything
       } else {
         message = data['message'];
       }
@@ -205,13 +200,13 @@ class Authprovider extends ChangeNotifier {
     notifyListeners();
     try {
       final response = await http.delete(
-        Uri.parse("$_accounturl/deleteitem/$invoiceId"),
+        Uri.parse("$accounturl/deleteitem/$invoiceId"),
         headers: {'Content-Type': 'application/json'},
       );
       final data = json.decode(response.body);
       if (response.statusCode == 200) {
         message = data['message'];
-        cartItems.removeWhere((item) => item.id == invoiceId);
+        await fetchCartItems(); // ← just re-fetch everything
       } else {
         message = data['message'];
       }
@@ -236,7 +231,7 @@ class Authprovider extends ChangeNotifier {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse("$_accounturl/register"),
+        Uri.parse("$accounturl/register"),
       );
       request.fields['name'] = name;
       request.fields['address'] = address;
@@ -269,7 +264,7 @@ class Authprovider extends ChangeNotifier {
     notifyListeners();
     try {
       final response = await http.post(
-        Uri.parse("$_accounturl/register2"),
+        Uri.parse("$accounturl/register2"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'userid': userid,
@@ -302,7 +297,7 @@ class Authprovider extends ChangeNotifier {
       userToken ??= await dataProvider.readSecureData('token');
 
       final response = await http.get(
-        Uri.parse('$_accounturl/getitem/$id'),
+        Uri.parse('$accounturl/getitem/$id'),
         headers: {'Authorization': 'Bearer ${userToken ?? ""}'},
       );
 

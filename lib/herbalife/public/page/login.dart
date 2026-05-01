@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project2/herbalife/l10n/app_localizations.dart';
-import 'package:project2/herbalife/public/constants/Constants.dart';
+import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:project2/herbalife/public/data/notifier.dart';
 import 'package:project2/herbalife/public/page/info.dart';
 import 'package:project2/herbalife/public/page/register.dart';
@@ -22,6 +22,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   AnimationController? _animController;
   Animation<double>? _fadeAnim;
   Animation<Offset>? _slideAnim;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -101,7 +102,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 child: FadeTransition(
                   opacity: _fadeAnim ?? const AlwaysStoppedAnimation(1.0),
                   child: SlideTransition(
-                    position: _slideAnim ?? const AlwaysStoppedAnimation(Offset.zero),
+                    position:
+                        _slideAnim ?? const AlwaysStoppedAnimation(Offset.zero),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -116,7 +118,9 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                             borderRadius: BorderRadius.circular(28),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF388E3C).withValues(alpha: 0.10),
+                                color: const Color(
+                                  0xFF388E3C,
+                                ).withValues(alpha: 0.10),
                                 blurRadius: 30,
                                 offset: const Offset(0, 10),
                               ),
@@ -137,23 +141,24 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                                   ),
                                   const SizedBox(width: 12),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         l10n.login,
                                         style: isKhmer
                                             ? const TextStyle(
-                                          fontFamily: 'KhmerFont',
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w800,
-                                          color: Color(0xFF1B5E20),
-                                        )
+                                                fontFamily: 'KhmerFont',
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.w800,
+                                                color: Color(0xFF1B5E20),
+                                              )
                                             : const TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w800,
-                                          color: Color(0xFF1B5E20),
-                                          letterSpacing: -0.5,
-                                        ),
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.w800,
+                                                color: Color(0xFF1B5E20),
+                                                letterSpacing: -0.5,
+                                              ),
                                       ),
                                       Text(
                                         'Welcome back!',
@@ -168,68 +173,119 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                                 ],
                               ),
                               const SizedBox(height: 28),
-                              _buildLabel(l10n.id.contains("ID") ? "Member ID" : l10n.id, isKhmer),
-                              const SizedBox(height: 6),
-                              _buildField(
-                                controller: _idController,
-                                hint: l10n.id,
-                                icon: Icons.badge_outlined,
-                                isKhmer: isKhmer,
-                              ),
-                              const SizedBox(height: 16),
-                              _buildLabel(
-                                l10n.password.contains("Password") ? "Password" : l10n.password,
-                                isKhmer,
-                              ),
-                              const SizedBox(height: 6),
-                              TextFormField(
-                                controller: _passwordController,
-                                obscureText: _obscurePassword,
-                                style: isKhmer
-                                    ? const TextStyle(
-                                  fontFamily: 'KhmerFont',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                )
-                                    : const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: l10n.password,
-                                  hintStyle: TextStyle(
-                                      color: Colors.grey.shade400, fontSize: 13),
-                                  prefixIcon: const Icon(Icons.lock_outline_rounded,
-                                      size: 20, color: Color(0xFF43A047)),
-                                  suffixIcon: GestureDetector(
-                                    onTap: () =>
-                                        setState(() => _obscurePassword = !_obscurePassword),
-                                    child: Icon(
-                                      _obscurePassword
-                                          ? Icons.visibility_off_outlined
-                                          : Icons.visibility_outlined,
-                                      size: 20,
-                                      color: Colors.grey.shade400,
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildLabel(
+                                      l10n.id.contains("ID")
+                                          ? "Member ID"
+                                          : l10n.id,
+                                      isKhmer,
                                     ),
-                                  ),
-                                  filled: true,
-                                  fillColor: const Color(0xFFF5FBF5),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 15, horizontal: 16),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xFFDCEEDC), width: 1.5),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xFF43A047), width: 1.8),
-                                  ),
+                                    _buildField(
+                                      controller: _idController,
+                                      hint: l10n.id,
+                                      icon: Icons.badge_outlined,
+                                      isKhmer: isKhmer,
+                                      validator: (value) {
+                                        if (value != null && value.isEmpty) {
+                                          return 'Fill in the ID';
+                                        }
+                                        if (int.tryParse(value!) == null) {
+                                          return 'ID must be number';
+                                        }
+
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildLabel(
+                                      l10n.password.contains("Password")
+                                          ? "Password"
+                                          : l10n.password,
+                                      isKhmer,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    //here
+                                    TextFormField(
+                                      controller: _passwordController,
+                                      validator: (value) {
+                                        if (value != null && value.isEmpty) {
+                                          return 'Fill in the password';
+                                        }
+                                        return null;
+                                      },
+                                      obscureText: _obscurePassword,
+                                      style: isKhmer
+                                          ? const TextStyle(
+                                              fontFamily: 'KhmerFont',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            )
+                                          : const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      decoration: InputDecoration(
+                                        hintText: l10n.password,
+                                        hintStyle: TextStyle(
+                                          color: Colors.grey.shade400,
+                                          fontSize: 13,
+                                        ),
+                                        prefixIcon: const Icon(
+                                          Icons.lock_outline_rounded,
+                                          size: 20,
+                                          color: Color(0xFF43A047),
+                                        ),
+                                        suffixIcon: GestureDetector(
+                                          onTap: () => setState(
+                                            () => _obscurePassword =
+                                                !_obscurePassword,
+                                          ),
+                                          child: Icon(
+                                            _obscurePassword
+                                                ? Icons.visibility_off_outlined
+                                                : Icons.visibility_outlined,
+                                            size: 20,
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        ),
+                                        filled: true,
+                                        fillColor: const Color(0xFFF5FBF5),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              vertical: 15,
+                                              horizontal: 16,
+                                            ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFFDCEEDC),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFF43A047),
+                                            width: 1.8,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(height: 28),
@@ -246,102 +302,173 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                                           onPressed: authProvider.isLoading
                                               ? null
                                               : () async {
-                                            await authProvider.login(
-                                              _idController.text,
-                                              _passwordController.text,
-                                            );
+                                                  if (!_formKey.currentState!
+                                                      .validate()) {
+                                                    return;
+                                                  }
+                                                  await authProvider.login(
+                                                    _idController.text,
+                                                    _passwordController.text,
+                                                  );
 
-                                            if (authProvider.message != null) {
-                                              if (authProvider.message == "Login successful") {
-                                                // Save critical data to Secure Storage
-                                                await dataProvider.writeSecureData('id', authProvider.id!);
-                                                await dataProvider.writeSecureData('userId', authProvider.userId!);
-                                                await dataProvider.writeSecureData('token', authProvider.userToken!);
-                                                await dataProvider.writeSecureData('password', _passwordController.text);
-                                                
-                                                // Update global ValueNotifiers
-                                                isId.value = authProvider.id!;
-                                                isUser.value = authProvider.userId!;
+                                                  if (authProvider.message !=
+                                                      null) {
+                                                    if (authProvider.message ==
+                                                        "Login successful") {
+                                                      // Save critical data to Secure Storage
+                                                      await dataProvider
+                                                          .writeSecureData(
+                                                            'id',
+                                                            authProvider.id!,
+                                                          );
+                                                      await dataProvider
+                                                          .writeSecureData(
+                                                            'userId',
+                                                            authProvider
+                                                                .userId!,
+                                                          );
+                                                      await dataProvider
+                                                          .writeSecureData(
+                                                            'token',
+                                                            authProvider
+                                                                .userToken!,
+                                                          );
+                                                      await dataProvider
+                                                          .writeSecureData(
+                                                            'password',
+                                                            _passwordController
+                                                                .text,
+                                                          );
 
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          Info(authProvider.userId)),
-                                                );
-                                              } else {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content: Row(
-                                                      children: [
-                                                        const Icon(Icons.error_outline,
-                                                            color: Colors.white, size: 20),
-                                                        const SizedBox(width: 10),
-                                                        Expanded(
-                                                          child: Text(
-                                                            authProvider.message!,
-                                                            style: const TextStyle(
-                                                                fontWeight: FontWeight.w500),
-                                                          ),
+                                                      // Update global ValueNotifiers
+                                                      isId.value =
+                                                          authProvider.id!;
+                                                      isUser.value =
+                                                          authProvider.userId!;
+
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Info(
+                                                                authProvider
+                                                                    .userId,
+                                                              ),
                                                         ),
-                                                      ],
-                                                    ),
-                                                    backgroundColor: Colors.red.shade700,
-                                                    behavior: SnackBarBehavior.floating,
-                                                    shape: RoundedRectangleBorder(
-                                                        borderRadius: BorderRadius.circular(12)),
-                                                    duration: const Duration(seconds: 2),
-                                                  ),
-                                                );
-                                              }
-                                            }
-                                          },
+                                                      );
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        SnackBar(
+                                                          content: Row(
+                                                            children: [
+                                                              const Icon(
+                                                                Icons
+                                                                    .error_outline,
+                                                                color: Colors
+                                                                    .white,
+                                                                size: 20,
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 10,
+                                                              ),
+                                                              Expanded(
+                                                                child: Text(
+                                                                  authProvider
+                                                                      .message!,
+                                                                  style: const TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          backgroundColor:
+                                                              Colors
+                                                                  .red
+                                                                  .shade700,
+                                                          behavior:
+                                                              SnackBarBehavior
+                                                                  .floating,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                          ),
+                                                          duration:
+                                                              const Duration(
+                                                                seconds: 2,
+                                                              ),
+                                                        ),
+                                                      );
+                                                    }
+                                                  }
+                                                },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: kPrimaryGreen,
                                             disabledBackgroundColor:
-                                            kPrimaryGreen.withValues(alpha: 0.5),
+                                                kPrimaryGreen.withValues(
+                                                  alpha: 0.5,
+                                                ),
                                             elevation: 0,
                                             shadowColor: Colors.transparent,
                                             shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(16)),
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                            ),
                                           ),
                                           child: authProvider.isLoading
                                               ? const SizedBox(
-                                            width: 22,
-                                            height: 22,
-                                            child: CircularProgressIndicator(
-                                                strokeWidth: 2.5, color: Colors.white),
-                                          )
+                                                  width: 22,
+                                                  height: 22,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        strokeWidth: 2.5,
+                                                        color: Colors.white,
+                                                      ),
+                                                )
                                               : Text(
-                                            l10n.enter,
-                                            style: isKhmer
-                                                ? const TextStyle(
-                                              color: Colors.white,
-                                              fontFamily: 'KhmerFont',
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                            )
-                                                : const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700,
-                                              letterSpacing: 0.3,
-                                            ),
-                                          ),
+                                                  l10n.enter,
+                                                  style: isKhmer
+                                                      ? const TextStyle(
+                                                          color: Colors.white,
+                                                          fontFamily:
+                                                              'KhmerFont',
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        )
+                                                      : const TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          letterSpacing: 0.3,
+                                                        ),
+                                                ),
                                         );
-                                      }
+                                      },
                                     );
-                                  }
+                                  },
                                 ),
                               ),
                               const SizedBox(height: 16),
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Divider(color: Colors.grey.shade200, thickness: 1.5),
+                                    child: Divider(
+                                      color: Colors.grey.shade200,
+                                      thickness: 1.5,
+                                    ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
                                     child: Text(
                                       "or",
                                       style: TextStyle(
@@ -352,7 +479,10 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
                                   Expanded(
-                                    child: Divider(color: Colors.grey.shade200, thickness: 1.5),
+                                    child: Divider(
+                                      color: Colors.grey.shade200,
+                                      thickness: 1.5,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -365,14 +495,18 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => const Register()),
+                                        builder: (context) => const Register(),
+                                      ),
                                     );
                                   },
                                   style: OutlinedButton.styleFrom(
                                     side: const BorderSide(
-                                        color: Color(0xFF43A047), width: 1.8),
+                                      color: Color(0xFF43A047),
+                                      width: 1.8,
+                                    ),
                                     shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16)),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
                                   ),
                                   child: const Text(
                                     "Create an Account",
@@ -405,17 +539,17 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       text,
       style: isKhmer
           ? const TextStyle(
-        fontFamily: 'KhmerFont',
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF1B5E20),
-      )
+              fontFamily: 'KhmerFont',
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1B5E20),
+            )
           : const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF1B5E20),
-        letterSpacing: 0.2,
-      ),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1B5E20),
+              letterSpacing: 0.2,
+            ),
     );
   }
 
@@ -425,16 +559,18 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     required IconData icon,
     required bool isKhmer,
     TextInputType? keyboardType,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
+      validator: validator,
       keyboardType: keyboardType,
       style: isKhmer
           ? const TextStyle(
-        fontFamily: 'KhmerFont',
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-      )
+              fontFamily: 'KhmerFont',
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            )
           : const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       decoration: InputDecoration(
         hintText: hint,
@@ -442,8 +578,10 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
         prefixIcon: Icon(icon, size: 20, color: const Color(0xFF43A047)),
         filled: true,
         fillColor: const Color(0xFFF5FBF5),
-        contentPadding:
-        const EdgeInsets.symmetric(vertical: 15, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 15,
+          horizontal: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+
+const String accounturl = "http://10.0.2.2:3000/api";
 // Colors
 const Color kPrimaryGreen = Color(0xFF2E6A38);
 
@@ -104,6 +106,7 @@ class LoginTextField extends StatelessWidget {
     this.obscureText = false,
     this.textStyle,
     required this.icon,
+
   });
 
   @override
@@ -115,9 +118,9 @@ class LoginTextField extends StatelessWidget {
         controller: controller,
         obscureText: obscureText,
         style: textStyle ?? kTitleStyle,
-        decoration: kTextFieldDecoration(hintText: hintText).copyWith(prefixIcon: icon != null
-            ? Icon(icon, color: kPrimaryGreen)
-            : null,),
+        decoration: kTextFieldDecoration(hintText: hintText).copyWith(
+          prefixIcon: Icon(icon, color: kPrimaryGreen),
+        ),
       ),
     );
   }

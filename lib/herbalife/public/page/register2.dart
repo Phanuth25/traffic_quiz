@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project2/herbalife/public/constants/Constants.dart';
+import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:project2/herbalife/public/page/login.dart';
 import 'package:project2/herbalife/public/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +15,7 @@ class _Register2State extends State<Register2>
     with SingleTickerProviderStateMixin {
   final TextEditingController useridController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool _obscurePassword = true;
 
@@ -308,23 +309,39 @@ class _Register2State extends State<Register2>
                                 ],
                               ),
                               const SizedBox(height: 28),
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // User ID field
+                                    _buildLabel('User ID'),
+                                    const SizedBox(height: 6),
+                                    _buildField(
+                                      controller: useridController,
+                                      hint: 'Enter your user ID',
+                                      icon: Icons.badge_outlined,
+                                      keyboardType: TextInputType.number,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your user ID';
+                                        }
+                                        if (int.tryParse(value) == null) {
+                                          return 'Please enter a valid user ID';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 16),
 
-                              // User ID field
-                              _buildLabel('User ID'),
-                              const SizedBox(height: 6),
-                              _buildField(
-                                controller: useridController,
-                                hint: 'Enter your user ID',
-                                icon: Icons.badge_outlined,
-                                keyboardType: TextInputType.number,
+                                    // Password field
+                                    _buildLabel('Password'),
+                                    const SizedBox(height: 6),
+                                    _buildPasswordField(),
+                                    const SizedBox(height: 28),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 16),
-
-                              // Password field
-                              _buildLabel('Password'),
-                              const SizedBox(height: 6),
-                              _buildPasswordField(),
-                              const SizedBox(height: 28),
 
                               // Submit button
                               SizedBox(
@@ -333,7 +350,13 @@ class _Register2State extends State<Register2>
                                 child: ElevatedButton(
                                   onPressed: authProvider.isLoading
                                       ? null
-                                      : () => _submit(authProvider),
+                                      : () {
+                                          if (!_formKey.currentState!
+                                              .validate()) {
+                                            return;
+                                          }
+                                          _submit(authProvider);
+                                        },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: kPrimaryGreen,
                                     disabledBackgroundColor: kPrimaryGreen
@@ -397,9 +420,11 @@ class _Register2State extends State<Register2>
     required String hint,
     required IconData icon,
     TextInputType? keyboardType,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
+      validator: validator,
       keyboardType: keyboardType,
       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       decoration: InputDecoration(
@@ -431,6 +456,13 @@ class _Register2State extends State<Register2>
   Widget _buildPasswordField() {
     return TextFormField(
       controller: passwordController,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your password';
+        }
+        return null;
+      },
+
       obscureText: _obscurePassword,
       keyboardType: TextInputType.number,
       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
