@@ -206,7 +206,8 @@ class Authprovider extends ChangeNotifier {
       final data = json.decode(response.body);
       if (response.statusCode == 200) {
         message = data['message'];
-        await fetchCartItems(); // ← just re-fetch everything
+        print(data);
+         await fetchCartItems(); // ← just re-fetch everything
       } else {
         message = data['message'];
       }
@@ -294,6 +295,7 @@ class Authprovider extends ChangeNotifier {
     notifyListeners();
     try {
       id ??= await dataProvider.readSecureData('id');
+      print(id);
       userToken ??= await dataProvider.readSecureData('token');
 
       final response = await http.get(
@@ -304,10 +306,12 @@ class Authprovider extends ChangeNotifier {
       final data = json.decode(response.body);
       print("API Response: $data"); // Check if 'data' array has items
       if (response.statusCode == 200) {
+        print(data);
         final cart = CartModel.fromJson(data);
         cartItems = cart.data;
         message = cart.message;
       } else {
+        cartItems = []; // ← add this
         message = data['message'];
       }
     } catch (e) {
