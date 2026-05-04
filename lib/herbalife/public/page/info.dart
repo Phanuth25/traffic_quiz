@@ -7,6 +7,7 @@ import 'package:project2/herbalife/public/page/login.dart';
 import 'package:project2/herbalife/public/page/product.dart';
 import 'package:project2/herbalife/public/provider/auth_provider.dart';
 import 'package:project2/herbalife/public/provider/data_provider.dart';
+import 'package:project2/herbalife/public/provider/profile_provider.dart';
 import 'package:provider/provider.dart';
 
 class Info extends StatefulWidget {
@@ -41,7 +42,7 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
     controller.forward();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<Authprovider>().getProfile();
+      await context.read<ProfileProvider>().getProfile();
     });
   }
 
@@ -95,8 +96,9 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<Authprovider>();
+    final profileProvider = context.watch<ProfileProvider>();
     final dataProvider = Provider.of<SecureStorageProvider>(context);
-    final imageUrl = authProvider.photo;
+    final imageUrl = profileProvider.photo;
     final profileImage = _buildProfileImage(imageUrl);
     final showFallbackIcon = profileImage == null;
 
@@ -188,7 +190,7 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              "${authProvider.ispoint}pt",
+                              "${profileProvider.ispoint}pt",
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -208,7 +210,7 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              "${authProvider.isdiscount}% off",
+                              "${profileProvider.isdiscount}% off",
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -224,7 +226,7 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
 
                 // ── body ────────────────────────────────────────────────
                 Expanded(
-                  child: authProvider.isLoading
+                  child: profileProvider.isLoading
                       ? const Center(
                           child: CircularProgressIndicator(
                             color: Color(0xFF43A047),
@@ -344,7 +346,7 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                             ),
                                           ),
                                           TextSpan(
-                                            text: '${authProvider.isname}!',
+                                            text: '${profileProvider.isname}!',
                                             style: const TextStyle(
                                               fontSize: 22,
                                               fontWeight: FontWeight.w800,
@@ -358,9 +360,9 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                   ),
 
                                   // error message
-                                  if (authProvider.message != null &&
-                                      authProvider.message!.isNotEmpty &&
-                                      authProvider.message != "Profile loaded")
+                                  if (profileProvider.message != null &&
+                                      profileProvider.message!.isNotEmpty &&
+                                      profileProvider.message != "Profile loaded")
                                     Container(
                                       margin: const EdgeInsets.only(top: 10),
                                       padding: const EdgeInsets.symmetric(
@@ -384,7 +386,7 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                           const SizedBox(width: 8),
                                           Expanded(
                                             child: Text(
-                                              authProvider.message!,
+                                              profileProvider.message!,
                                               style: TextStyle(
                                                 color: Colors.red.shade600,
                                                 fontSize: 13,
@@ -452,19 +454,19 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                         _buildInfoRow(
                                           icon: Icons.location_on_outlined,
                                           label: 'Address',
-                                          value: authProvider.isaddress,
+                                          value: profileProvider.isaddress,
                                         ),
                                         const SizedBox(height: 14),
                                         _buildInfoRow(
                                           icon: Icons.phone_outlined,
                                           label: 'Phone',
-                                          value: '0${authProvider.isphone}',
+                                          value: '0${profileProvider.isphone}',
                                         ),
                                         const SizedBox(height: 14),
                                         _buildInfoRow(
                                           icon: Icons.mail_outline_rounded,
                                           label: 'Email',
-                                          value: authProvider.isemail,
+                                          value: profileProvider.isemail,
                                         ),
                                       ],
                                     ),

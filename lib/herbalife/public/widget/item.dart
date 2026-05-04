@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:project2/herbalife/public/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
-
+import 'package:project2/herbalife/public/provider/cart_provider.dart';
+import 'package:project2/herbalife/public/provider/profile_provider.dart';
 class ImageCounterCard extends StatefulWidget {
   final String imagepath;
   final String product;
@@ -69,19 +70,21 @@ class _ImageCounterCardState extends State<ImageCounterCard>
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<Authprovider>();
+    final cartProvider = context.watch<CartProvider>();
+    final profileProvider = context.watch<ProfileProvider>();
     final int userId = int.parse(authProvider.id ?? '0');
     final int productId = int.parse(widget.id);
 
     // derive both isSelected and currentCounter from provider
-    final cartItem = authProvider.cartItems
+    final cartItem = cartProvider.cartItems
         .where((item) => item.product == productId)
         .firstOrNull;
     final bool isSelected = cartItem != null;
     final int currentCounter = cartItem?.quantity ?? 0;
 
     int discount = 0;
-    if (authProvider.discount != null) {
-      discount = double.tryParse(authProvider.discount!)?.toInt() ?? 0;
+    if (profileProvider.discount != null) {
+      discount = double.tryParse(profileProvider.discount!)?.toInt() ?? 0;
     }
 
     final double effectivePrice = _getEffectivePrice(discount);
@@ -95,12 +98,12 @@ class _ImageCounterCardState extends State<ImageCounterCard>
 
           if (!wasSelected) {
             // card is being selected → add item
-            await authProvider.postitem(userId, productId, 1);
+            await cartProvider.postitem(userId, productId, 1);
           } else {
             // card is being deselected → remove item
-            final int? invoiceId = authProvider.getInvoiceId(productId);
+            final int? invoiceId = cartProvider.getInvoiceId(productId);
             if (invoiceId != null) {
-              await authProvider.deleteitem(invoiceId);
+              await cartProvider.deleteitem(invoiceId);
             }
           }
         },
@@ -295,16 +298,16 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                         // minus
                         GestureDetector(
                           onTap: () async {
-                            final int? invoiceId = authProvider.getInvoiceId(productId);
+                            final int? invoiceId = cartProvider.getInvoiceId(productId);
                             if (invoiceId == null || currentCounter <= 0) return;
 
                             if (currentCounter == 1) {
                               // last item → delete the row and deselect
-                              await authProvider.deleteitem(invoiceId);
-                              authProvider.clearInvoiceId(productId);
+                              await cartProvider.deleteitem(invoiceId);
+                              cartProvider.clearInvoiceId(productId);
                             } else {
                               // just reduce quantity
-                              await authProvider.postitem2(invoiceId, currentCounter - 1);
+                              await cartProvider.postitem2(invoiceId, currentCounter - 1);
                             }
                             widget.onSelect2();
                           },
@@ -340,9 +343,9 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                         GestureDetector(
                           onTap: () async {
                             widget.onSelect();
-                            final int? invoiceId = authProvider.getInvoiceId(productId);
+                            final int? invoiceId = cartProvider.getInvoiceId(productId);
                             if (invoiceId != null) {
-                              await authProvider.postitem2(invoiceId, currentCounter + 1);
+                              await cartProvider.postitem2(invoiceId, currentCounter + 1);
 
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(

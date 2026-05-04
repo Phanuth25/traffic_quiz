@@ -6,11 +6,15 @@ import 'package:project2/herbalife/public/widget/welcome.dart';
 import 'package:project2/herbalife/public/data/notifier.dart';
 import 'package:project2/herbalife/public/provider/auth_provider.dart';
 import 'package:project2/herbalife/public/provider/khqr_provider.dart';
+import 'package:project2/herbalife/public/provider/cart_provider.dart';
+import 'package:project2/herbalife/public/provider/profile_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(
       MultiProvider(
         providers: [
+          ChangeNotifierProvider(create: (_) => ProfileProvider()),
+          ChangeNotifierProvider(create: (_) => CartProvider()),
           ChangeNotifierProvider(create: (_) => Authprovider()),
           ChangeNotifierProvider(create: (_) => KhqrProvider()),
           ChangeNotifierProvider(create: (_) => SecureStorageProvider()),
