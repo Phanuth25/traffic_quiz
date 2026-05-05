@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:project2/herbalife/public/constants/constants.dart';
-import 'package:project2/herbalife/public/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:project2/herbalife/public/provider/cart_provider.dart';
 import 'package:project2/herbalife/public/provider/profile_provider.dart';
@@ -69,10 +68,9 @@ class _ImageCounterCardState extends State<ImageCounterCard>
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<Authprovider>();
     final cartProvider = context.watch<CartProvider>();
     final profileProvider = context.watch<ProfileProvider>();
-    final int userId = int.parse(authProvider.id ?? '0');
+    final int userId = int.parse(profileProvider.id ?? '0');
     final int productId = int.parse(widget.id);
 
     // derive both isSelected and currentCounter from provider
@@ -346,35 +344,33 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                             final int? invoiceId = cartProvider.getInvoiceId(productId);
                             if (invoiceId != null) {
                               await cartProvider.postitem2(invoiceId, currentCounter + 1);
-
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Row(
-                                      children: [
-                                        Icon(
-                                          Icons.add_shopping_cart_rounded,
-                                          color: Colors.white,
-                                          size: 16,
+                              if(!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Row(
+                                    children: [
+                                      Icon(
+                                        Icons.add_shopping_cart_rounded,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        "Added to cart",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          "Added to cart",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    backgroundColor: const Color(0xFF2E7D32),
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    duration: const Duration(seconds: 2),
+                                      ),
+                                    ],
                                   ),
-                                );
-                              }
+                                  backgroundColor: const Color(0xFF2E7D32),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
                             }
                           },
                           child: Container(

@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -76,6 +78,43 @@ class ProfileProvider extends ChangeNotifier {
         message = data['message'] ?? "Failed to load profile";
       }
     } catch (e) {
+      message = "Network error $e";
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+  Future<void> updateProfile(File image) async{
+    message = "";
+    isLoading = true;
+    notifyListeners();
+    try {
+      // Restore state from secure storage if variables are null (e.g. after app restart)
+      id ??= await dataProvider.readSecureData('id');
+
+      if (id == null) {
+        message = "No user ID found";
+        return;
+      }
+      var request = http.MultipartRequest(
+        'PATCH',
+        Uri.parse("$accounturl/updateprofile"),
+      );
+      request.fields['id'] = id!;
+
+      request.files.add(await http.MultipartFile.fromPath('image', image.path));
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+      final data = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        message = "successfully updated";
+        photo = data['photo'];
+      } else {
+        message = data['error'] ?? data['message'] ?? "Registration failed";
+      }
+    }  catch (e) {
       message = "Network error $e";
     } finally {
       isLoading = false;

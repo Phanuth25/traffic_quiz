@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:project2/herbalife/public/provider/auth_provider.dart';
+import 'package:project2/herbalife/public/provider/profile_provider.dart';
 import 'package:project2/herbalife/public/provider/khqr_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -31,12 +31,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   Future<void> _setup() async {
     final khqr = context.read<KhqrProvider>();
-    final auth = context.read<Authprovider>();
+    final auth2 = context.read<ProfileProvider>();
 
     // await because generateQR is now async
     await khqr.generateQR(
       bakongID:  'kimhak@dev',      // replace with your actual Bakong ID
-      merchantName: auth.isname,
+      merchantName: auth2.isname,
       amount: widget.amount,
       billNumber: widget.billNumber,
     );

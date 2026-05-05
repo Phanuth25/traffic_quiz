@@ -11,17 +11,17 @@ import 'package:project2/herbalife/public/provider/profile_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => ProfileProvider()),
-          ChangeNotifierProvider(create: (_) => CartProvider()),
-          ChangeNotifierProvider(create: (_) => Authprovider()),
-          ChangeNotifierProvider(create: (_) => KhqrProvider()),
-          ChangeNotifierProvider(create: (_) => SecureStorageProvider()),
-        ],
-        child: const Main(),
-      ),
-    );
+  MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => ProfileProvider()),
+      ChangeNotifierProvider(create: (_) => CartProvider()),
+      ChangeNotifierProvider(create: (_) => Authprovider()),
+      ChangeNotifierProvider(create: (_) => KhqrProvider()),
+      ChangeNotifierProvider(create: (_) => SecureStorageProvider()),
+    ],
+    child: const Main(),
+  ),
+);
 
 class Main extends StatefulWidget {
   const Main({super.key});
@@ -41,7 +41,10 @@ class _MainState extends State<Main> {
 
   Future<void> _checkLoginStatus() async {
     // Access dataProvider without listening
-    final dataProvider = Provider.of<SecureStorageProvider>(context, listen: false);
+    final dataProvider = Provider.of<SecureStorageProvider>(
+      context,
+      listen: false,
+    );
 
     // Read stored data from Flutter Secure Storage
     final String? savedUserId = await dataProvider.readSecureData('userId');
@@ -68,46 +71,49 @@ class _MainState extends State<Main> {
       return const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(color: Colors.teal),
-          ),
+          body: Center(child: CircularProgressIndicator(color: Colors.teal)),
         ),
       );
     }
 
     return ValueListenableBuilder<Locale>(
-        valueListenable: appLocale,
-        builder: (context, value, child) {
-          return ValueListenableBuilder<bool>(
-              valueListenable: isDark,
-              builder: (context, isDarkMode, child) {
-                return MaterialApp(
-                  locale: value,
-                  localizationsDelegates: AppLocalizations.localizationsDelegates,
-                  supportedLocales: AppLocalizations.supportedLocales,
-                  debugShowCheckedModeBanner: false,
-                  theme: ThemeData(
-                    colorScheme: ColorScheme.fromSeed(
-                      seedColor: Colors.teal,
-                      brightness: isDarkMode ? Brightness.dark : Brightness.light,
+      valueListenable: appLocale,
+      builder: (context, value, child) {
+        return ValueListenableBuilder<bool>(
+          valueListenable: isDark,
+          builder: (context, isDarkMode, child) {
+            return MaterialApp(
+              locale: value,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: Colors.teal,
+                  brightness: isDarkMode ? Brightness.dark : Brightness.light,
+                ),
+              ),
+              home: ValueListenableBuilder(
+                valueListenable: isUser,
+                builder: (context, userVal, child) {
+                  return Scaffold(
+                    body: ValueListenableBuilder(
+                      valueListenable: isId,
+                      builder: (context, idVal, child) {
+                        if (isUser.value != "") {
+                          return Info(isUser.value);
+                        } else {
+                          return const Welcome();
+                        }
+                      },
                     ),
-                  ),
-                  home: ValueListenableBuilder(
-                      valueListenable: isUser,
-                      builder: (context, userVal, child) {
-                        return Scaffold(
-                            body: ValueListenableBuilder(
-                                valueListenable: isId,
-                                builder: (context, idVal, child) {
-                                  if (isUser.value != "") {
-                                    return Info(isUser.value);
-                                  } else {
-                                    return const Welcome();
-                                  }
-                                }));
-                      }),
-                );
-              });
-        });
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

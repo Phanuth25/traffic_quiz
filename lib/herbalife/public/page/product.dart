@@ -3,12 +3,13 @@ import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:project2/herbalife/public/model/product_model.dart';
 import 'package:project2/herbalife/public/page/info.dart';
 import 'package:project2/herbalife/public/provider/auth_provider.dart';
+import 'package:project2/herbalife/public/provider/cart_provider.dart';
 import 'package:project2/herbalife/public/widget/item.dart';
 import 'package:project2/herbalife/public/page/cart.dart';
 import 'package:provider/provider.dart';
 
 class Product extends StatefulWidget {
-  const Product(String? id, {super.key});
+  const Product( {super.key});
 
   @override
   State<Product> createState() => _ProductState();
@@ -28,7 +29,7 @@ class _ProductState extends State<Product> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    context.read<Authprovider>().fetchCartItems();
+    context.read<CartProvider>().fetchCartItems();
   }
 
   @override
@@ -40,11 +41,12 @@ class _ProductState extends State<Product> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<Authprovider>();
-    final double totalPoint = authProvider.cartItems.fold(
+    final cartProvider = context.watch<CartProvider>();
+    final double totalPoint = cartProvider.cartItems.fold(
       0,
       (sum, item) => sum + double.parse(item.point),
     );
-    final int totalQty = authProvider.cartItems.fold(
+    final int totalQty = cartProvider.cartItems.fold(
       0,
       (sum, item) => sum + item.quantity,
     );

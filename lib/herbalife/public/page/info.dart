@@ -53,42 +53,29 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
   }
 
   Future<void> _pickPhoto() async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.gallery);
-    if (photo != null) {
-      setState(() {
-        _image = File(photo.path);
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
-                SizedBox(width: 10),
-                Text(
-                  'Photo selected successfully!',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
-            backgroundColor: const Color(0xFF2E7D32),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+    final XFile? picked = await _picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() => _image = File(picked.path));
+
+      if (!mounted) return; // ✅ check before using context
+      await context.read<ProfileProvider>().updateProfile(_image!);
+
+      if (!mounted) return; // ✅ check again before showing snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Photo updated successfully!'),
+          backgroundColor: const Color(0xFF2E7D32),
+        ),
+      );
     }
   }
 
   DecorationImage? _buildProfileImage(String? imageUrl) {
-    if (imageUrl != null) {
-      return DecorationImage(fit: BoxFit.cover, image: NetworkImage(imageUrl));
-    }
     if (_image != null) {
       return DecorationImage(fit: BoxFit.cover, image: FileImage(_image!));
+    }
+    if (imageUrl != null) {
+      return DecorationImage(fit: BoxFit.cover, image: NetworkImage(imageUrl));
     }
     return null;
   }
@@ -251,7 +238,9 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                       // photo avatar
                                       Center(
                                         child: GestureDetector(
-                                          onTap: _pickPhoto,
+                                          onTap: () {
+                                            _pickPhoto();
+                                          },
                                           child: Stack(
                                             alignment: Alignment.bottomRight,
                                             children: [
@@ -359,10 +348,10 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
 
-                                  // error message
+                                  // success message
                                   if (profileProvider.message != null &&
                                       profileProvider.message!.isNotEmpty &&
-                                      profileProvider.message != "Profile loaded")
+                                      profileProvider.message == "successfully")
                                     Container(
                                       margin: const EdgeInsets.only(top: 10),
                                       padding: const EdgeInsets.symmetric(
@@ -370,17 +359,17 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                         vertical: 10,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.red.shade50,
+                                        color: Colors.green.shade50,
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
-                                          color: Colors.red.shade200,
+                                          color: Colors.green.shade200,
                                         ),
                                       ),
                                       child: Row(
                                         children: [
                                           Icon(
-                                            Icons.error_outline,
-                                            color: Colors.red.shade400,
+                                            Icons.check_circle_outline,
+                                            color: Colors.green.shade400,
                                             size: 18,
                                           ),
                                           const SizedBox(width: 8),
@@ -388,7 +377,7 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                             child: Text(
                                               profileProvider.message!,
                                               style: TextStyle(
-                                                color: Colors.red.shade600,
+                                                color: Colors.green.shade600,
                                                 fontSize: 13,
                                               ),
                                             ),
@@ -396,6 +385,44 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                         ],
                                       ),
                                     ),
+                                  if (profileProvider.message != null &&
+                                      profileProvider.message!.isNotEmpty &&
+                                      profileProvider.message !=
+                                          "successfully") ...[
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.shade50,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.green.shade200,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.check,
+                                            color: Colors.green.shade400,
+                                            size: 18,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              profileProvider.message!,
+                                              style: TextStyle(
+                                                color: Colors.green.shade600,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
 
                                   const SizedBox(height: 20),
 
@@ -484,7 +511,7 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                Product(authProvider.userId),
+                                                Product(),
                                           ),
                                         );
                                       },
@@ -567,7 +594,7 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
                                           },
                                         );
 
-                                         dataProvider.clearSecureData();
+                                        dataProvider.clearSecureData();
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: kPrimaryGreen,
