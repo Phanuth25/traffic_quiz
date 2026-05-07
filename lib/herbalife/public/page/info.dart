@@ -274,14 +274,17 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
 
                                                 // here
                                                 child: showFallbackIcon
-                                                    ? Icon(
-                                                        Icons.person_rounded,
-                                                        size: 42,
-                                                        color: kPrimaryGreen
-                                                            .withValues(
-                                                              alpha: 0.5,
-                                                            ),
-                                                      )
+                                                    ? Opacity(
+                                                        opacity: 0,
+                                                      child: Icon(
+                                                          Icons.person_rounded,
+                                                          size: 42,
+                                                          color: kPrimaryGreen
+                                                              .withValues(
+                                                                alpha: 0.5,
+                                                              ),
+                                                        ),
+                                                    )
                                                     : null,
                                               ),
                                               Container(

@@ -1,18 +1,17 @@
-
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:project2/herbalife/public/provider/data_provider.dart';
 import 'package:project2/herbalife/public/constants/constants.dart';
-
+import 'package:project2/herbalife/public/service/dio_client.dart';
 
 class ProfileProvider extends ChangeNotifier {
   final SecureStorageProvider dataProvider = SecureStorageProvider();
-
+  final Dio _dio = DioClient.instance;
   String? message;
   bool isLoading = false;
+
   // Profile data
   String? email;
   String? phone;
@@ -24,7 +23,6 @@ class ProfileProvider extends ChangeNotifier {
   String? photo;
   String? totalPoint;
   String? totalAmount;
-  String? userToken;
   String? userId; // Store as String (Member ID)
   String? id; // Store as String (Database Primary Key)
 
@@ -42,7 +40,6 @@ class ProfileProvider extends ChangeNotifier {
 
   String get isdiscount => discount ?? "No data";
 
-
   Future<void> getProfile() async {
     message = "";
     isLoading = true;
@@ -51,18 +48,14 @@ class ProfileProvider extends ChangeNotifier {
     try {
       // Restore state from secure storage if variables are null (e.g. after app restart)
       id ??= await dataProvider.readSecureData('id');
-      userToken ??= await dataProvider.readSecureData('token');
 
       if (id == null) {
         message = "No user ID found";
         return;
       }
 
-      final response = await http.get(
-        Uri.parse("$accounturl/profile/$id"),
-        headers: {'Authorization': 'Bearer ${userToken ?? ""}'},
-      );
-      final data = json.decode(response.body);
+      final response = await _dio.get(("$accounturl/profile/$id"));
+      final data = response.data;
       if (response.statusCode == 200) {
         id = data['id']?.toString();
         message = data['message'] ?? "Profile loaded";
@@ -84,7 +77,8 @@ class ProfileProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-  Future<void> updateProfile(File image) async{
+
+  Future<void> updateProfile(File image) async {
     message = "";
     isLoading = true;
     notifyListeners();
@@ -96,17 +90,18 @@ class ProfileProvider extends ChangeNotifier {
         message = "No user ID found";
         return;
       }
-      var request = http.MultipartRequest(
-        'PATCH',
-        Uri.parse("$accounturl/updateprofile"),
+      String fileName = image.path.split('/').last;
+      FormData formData = FormData.fromMap({
+        'id': id,
+        'image': await MultipartFile.fromFile(image.path, filename: fileName),
+      });
+
+      var response = await _dio.patch(
+        ("$accounturl/updateprofile"),
+        data: formData,
       );
-      request.fields['id'] = id!;
 
-      request.files.add(await http.MultipartFile.fromPath('image', image.path));
-
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-      final data = json.decode(response.body);
+      final data = response.data;
 
       if (response.statusCode == 200) {
         message = "successfully updated";
@@ -114,7 +109,7 @@ class ProfileProvider extends ChangeNotifier {
       } else {
         message = data['error'] ?? data['message'] ?? "Registration failed";
       }
-    }  catch (e) {
+    } catch (e) {
       message = "Network error $e";
     } finally {
       isLoading = false;
@@ -122,4 +117,3 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 }
-

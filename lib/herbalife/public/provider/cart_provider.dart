@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:project2/herbalife/public/model/cart_model.dart';
 import 'package:project2/herbalife/public/provider/data_provider.dart';
 import 'package:project2/herbalife/public/constants/constants.dart';
-import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:project2/herbalife/public/service/dio_client.dart';
 
 class CartProvider extends ChangeNotifier {
   final SecureStorageProvider dataProvider = SecureStorageProvider();
-
+  final Dio _dio = DioClient.instance;
   String? message;
   bool isLoading = false;
-  String? userToken;
   String? id;
   int? invoiceId;
   int cartCount = 0;
@@ -34,12 +33,9 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
     try {
       id ??= await dataProvider.readSecureData('id');
-      userToken ??= await dataProvider.readSecureData('token');
-      final response = await http.get(
-        Uri.parse('$accounturl/getitem/$id'),
-        headers: {'Authorization': 'Bearer ${userToken ?? ""}'},
+      final response = await _dio.get(('$accounturl/getitem/$id'),
       );
-      final data = json.decode(response.body);
+      final data = response.data;
       if (response.statusCode == 200) {
         final cart = CartModel.fromJson(data);
         cartItems = cart.data;
@@ -60,16 +56,14 @@ class CartProvider extends ChangeNotifier {
     message = "";
     invoiceId = null;
     try {
-      final response = await http.post(
-        Uri.parse("$accounturl/postitem"),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      final response = await _dio.post(("$accounturl/postitem"),
+        data: {
           'userid': userid,
           'product': product,
           'quantity': quantity,
-        }),
+        },
       );
-      final data = json.decode(response.body);
+      final data = response.data;
       if (response.statusCode == 200) {
         message = data['message'];
         invoiceId = data['invoiceId'];
@@ -92,12 +86,11 @@ class CartProvider extends ChangeNotifier {
     message = "";
     invoiceId = null;
     try {
-      final response = await http.patch(
-        Uri.parse("$accounturl/postquantity"),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'invoiceid': invoiceid, 'quantity': quantity}),
+      final response = await _dio.patch(
+        "$accounturl/postquantity",
+        data: {'invoiceid': invoiceid, 'quantity': quantity},
       );
-      final data = json.decode(response.body);
+      final data = response.data;
       if (response.statusCode == 200) {
         message = data['message'];
         await fetchCartItems();
@@ -118,11 +111,10 @@ class CartProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      final response = await http.delete(
-        Uri.parse("$accounturl/deleteitem/$invoiceId"),
-        headers: {'Content-Type': 'application/json'},
+      final response = await _dio.delete(
+        ("$accounturl/deleteitem/$invoiceId"),
       );
-      final data = json.decode(response.body);
+      final data = response.data;
       if (response.statusCode == 200) {
         message = data['message'];
         await fetchCartItems();

@@ -1,44 +1,50 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:dio/dio.dart'; // Replaced http with dio
 import 'package:project2/herbalife/public/provider/data_provider.dart';
 import 'package:project2/herbalife/public/constants/constants.dart';
 
 class Authprovider extends ChangeNotifier {
+  // Initialize Dio instance
+  final Dio _dio = Dio();
   final SecureStorageProvider dataProvider = SecureStorageProvider();
+
   String? message;
   bool isLoading = false;
   String? userToken;
-  String? userId; // Store as String (Member ID)
-  String? id; // Store as String (Database Primary Key)
+  String? userId;
+  String? id;
   File? image;
   double totalPoints = 0;
 
   String get isUserid => userId ?? "No id";
 
-  //
   Future<void> login(String userid, String password) async {
     message = "";
     isLoading = true;
     notifyListeners();
+
     try {
-      final response = await http.post(
-        Uri.parse("$accounturl/login"),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userid': userid, 'password': password}),
+      final response = await _dio.post(
+        "$accounturl/login",
+        data: {'userid': userid, 'password': password},
       );
-      final data = json.decode(response.body);
+
+      // Dio automatically decodes JSON, so no need for json.decode()
+      final data = response.data;
+
       if (response.statusCode == 200) {
         message = data['message'];
         userToken = data['token'];
-        // Safely convert to String in case they are integers in the DB
         userId = data['userid']?.toString();
         id = data['id']?.toString();
       } else {
         message = data['message'];
         userToken = null;
       }
+    } on DioException catch (e) {
+      // Dio catches non-200 status codes as exceptions by default
+      message = e.response?.data['message'] ?? "Login failed: ${e.message}";
     } catch (e) {
       message = "Login failed: $e";
     } finally {
@@ -47,35 +53,34 @@ class Authprovider extends ChangeNotifier {
     }
   }
 
-
-
-
-
   Future<void> register(
-    String name,
-    String address,
-    String phone,
-    String email,
-    File image,
-  ) async {
+      String name,
+      String address,
+      String phone,
+      String email,
+      File image,
+      ) async {
     message = "";
     isLoading = true;
     notifyListeners();
+
     try {
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse("$accounturl/register"),
+      // Dio uses FormData for multipart/form-data requests
+      String fileName = image.path.split('/').last;
+      FormData formData = FormData.fromMap({
+        'name': name,
+        'address': address,
+        'phone': phone,
+        'email': email,
+        'image': await MultipartFile.fromFile(image.path, filename: fileName),
+      });
+
+      final response = await _dio.post(
+        "$accounturl/register",
+        data: formData,
       );
-      request.fields['name'] = name;
-      request.fields['address'] = address;
-      request.fields['phone'] = phone;
-      request.fields['email'] = email;
 
-      request.files.add(await http.MultipartFile.fromPath('image', image.path));
-
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-      final data = json.decode(response.body);
+      final data = response.data;
 
       if (response.statusCode == 200) {
         message = "successfully";
@@ -83,6 +88,8 @@ class Authprovider extends ChangeNotifier {
       } else {
         message = data['error'] ?? data['message'] ?? "Registration failed";
       }
+    } on DioException catch (e) {
+      message = e.response?.data['error'] ?? e.message;
     } catch (e) {
       message = "Network failed: $e";
     } finally {
@@ -95,23 +102,26 @@ class Authprovider extends ChangeNotifier {
     message = "";
     isLoading = true;
     notifyListeners();
+
     try {
-      final response = await http.post(
-        Uri.parse("$accounturl/register2"),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      final response = await _dio.post(
+        "$accounturl/register2",
+        data: {
           'userid': userid,
           'password': password,
           'userids': userids,
-        }),
+        },
       );
-      final data = json.decode(response.body);
+
+      final data = response.data;
       if (response.statusCode == 200) {
         message = data['message'];
         userId = data['userids']?.toString();
       } else {
         message = data['message'];
       }
+    } on DioException catch (e) {
+      message = e.response?.data['message'] ?? "Network failed";
     } catch (e) {
       message = "Network failed";
     } finally {
@@ -119,5 +129,4 @@ class Authprovider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 }
