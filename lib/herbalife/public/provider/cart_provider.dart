@@ -32,7 +32,8 @@ class CartProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      id ??= await dataProvider.readSecureData('id');
+      id ??= await dataProvider.readSecureData('userId');
+      print('The id is $id');
       final response = await _dio.get(('$accounturl/getitem/$id'),
       );
       final data = response.data;
@@ -45,7 +46,14 @@ class CartProvider extends ChangeNotifier {
         message = data['message'];
       }
     } catch (e) {
-      message = "Network error: $e";
+      if (e is DioException && e.response != null) {
+        // server responded but with non-2xx (404, 500 etc)
+        cartItems = [];
+        message = e.response?.data['message'] ?? "Failed";
+      } else {
+        // actual network error (no internet, timeout)
+        message = "Network error: $e";
+      }
     } finally {
       isLoading = false;
       notifyListeners();

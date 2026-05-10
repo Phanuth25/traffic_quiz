@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:project2/herbalife/public/page/login.dart';
 import 'package:project2/herbalife/public/page/product.dart';
-import 'package:project2/herbalife/public/provider/auth_provider.dart';
 import 'package:project2/herbalife/public/provider/data_provider.dart';
 import 'package:project2/herbalife/public/provider/profile_provider.dart';
 import 'package:provider/provider.dart';
@@ -82,7 +81,6 @@ class _InfoState extends State<Info> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<Authprovider>();
     final profileProvider = context.watch<ProfileProvider>();
     final dataProvider = Provider.of<SecureStorageProvider>(context);
     final imageUrl = profileProvider.photo;

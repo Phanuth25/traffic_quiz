@@ -12,6 +12,7 @@ class Authprovider extends ChangeNotifier {
   String? message;
   bool isLoading = false;
   String? userToken;
+  String? refreshToken;
   String? userId;
   String? id;
   File? image;
@@ -36,7 +37,9 @@ class Authprovider extends ChangeNotifier {
       if (response.statusCode == 200) {
         message = data['message'];
         userToken = data['token'];
+        refreshToken = data['refreshtoken'];
         userId = data['userid']?.toString();
+        print("userid$userId");
         id = data['id']?.toString();
       } else {
         message = data['message'];

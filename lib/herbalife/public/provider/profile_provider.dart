@@ -47,14 +47,9 @@ class ProfileProvider extends ChangeNotifier {
 
     try {
       // Restore state from secure storage if variables are null (e.g. after app restart)
-      id ??= await dataProvider.readSecureData('id');
-
-      if (id == null) {
-        message = "No user ID found";
-        return;
-      }
-
-      final response = await _dio.get(("$accounturl/profile/$id"));
+      userId ??= await dataProvider.readSecureData('userId');
+      print('ID value: $userId');
+        final response = await _dio.get(("$accounturl/profile/$userId"));
       final data = response.data;
       if (response.statusCode == 200) {
         id = data['id']?.toString();

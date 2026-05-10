@@ -335,6 +335,12 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                                                           );
                                                       await dataProvider
                                                           .writeSecureData(
+                                                            'refreshToken',
+                                                            authProvider
+                                                                .refreshToken!,
+                                                          );
+                                                      await dataProvider
+                                                          .writeSecureData(
                                                             'password',
                                                             _passwordController
                                                                 .text,
