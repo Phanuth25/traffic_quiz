@@ -34,8 +34,7 @@ class CartProvider extends ChangeNotifier {
     try {
       id ??= await dataProvider.readSecureData('userId');
       print('The id is $id');
-      final response = await _dio.get(('$accounturl/getitem/$id'),
-      );
+      final response = await _dio.get(('$accounturl/getitem/$id'));
       final data = response.data;
       if (response.statusCode == 200) {
         final cart = CartModel.fromJson(data);
@@ -64,12 +63,9 @@ class CartProvider extends ChangeNotifier {
     message = "";
     invoiceId = null;
     try {
-      final response = await _dio.post(("$accounturl/postitem"),
-        data: {
-          'userid': userid,
-          'product': product,
-          'quantity': quantity,
-        },
+      final response = await _dio.post(
+        ("$accounturl/postitem"),
+        data: {'userid': userid, 'product': product, 'quantity': quantity},
       );
       final data = response.data;
       if (response.statusCode == 200) {
@@ -119,13 +115,59 @@ class CartProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      final response = await _dio.delete(
-        ("$accounturl/deleteitem/$invoiceId"),
-      );
+      final response = await _dio.delete(("$accounturl/deleteitem/$invoiceId"));
       final data = response.data;
       if (response.statusCode == 200) {
         message = data['message'];
         await fetchCartItems();
+      } else {
+        message = data['message'];
+      }
+    } catch (e) {
+      message = "Network failed: $e";
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> plusinfos(double point) async {
+    message = "";
+    isLoading = true;
+    notifyListeners();
+    try {
+      id ??= await dataProvider.readSecureData('userId');
+      final response = await _dio.patch(
+        '$accounturl/plusinfospoint',
+        data: {'id': id, 'point': point},
+      );
+      final data = response.data;
+      if (response.statusCode == 200) {
+        message = data['message'];
+      } else {
+        message = data['message'];
+      }
+    } catch (e) {
+      message = "Network failed: $e";
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> minusinfos(double point) async {
+    message = "";
+    isLoading = true;
+    notifyListeners();
+    try {
+      id ??= await dataProvider.readSecureData('userId');
+      final response = await _dio.patch(
+        '$accounturl/removeinfos',
+        data: {'id': id, 'point': point},
+      );
+      final data = response.data;
+      if (response.statusCode == 200) {
+        message = data['message'];
       } else {
         message = data['message'];
       }

@@ -97,11 +97,14 @@ class _ImageCounterCardState extends State<ImageCounterCard>
           if (!wasSelected) {
             // card is being selected → add item
             await cartProvider.postitem(userId, productId, 1);
+            await cartProvider.plusinfos(double.parse(widget.point));
           } else {
             // card is being deselected → remove item
             final int? invoiceId = cartProvider.getInvoiceId(productId);
             if (invoiceId != null) {
               await cartProvider.deleteitem(invoiceId);
+              cartProvider.clearInvoiceId(productId);
+              await cartProvider.minusinfos(double.parse(widget.point));
             }
           }
         },

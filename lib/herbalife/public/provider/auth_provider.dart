@@ -132,4 +132,6 @@ class Authprovider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+
 }

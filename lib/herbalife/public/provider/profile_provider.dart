@@ -91,8 +91,8 @@ class ProfileProvider extends ChangeNotifier {
         'image': await MultipartFile.fromFile(image.path, filename: fileName),
       });
 
-      var response = await _dio.patch(
-        ("$accounturl/updateprofile"),
+      var response = await _dio.post(
+        ("$accounturl/upload-image"),
         data: formData,
       );
 
