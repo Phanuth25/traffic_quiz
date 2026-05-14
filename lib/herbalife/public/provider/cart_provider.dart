@@ -3,6 +3,7 @@ import 'package:project2/herbalife/public/model/cart_model.dart';
 import 'package:project2/herbalife/public/provider/data_provider.dart';
 import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:dio/dio.dart';
+import 'package:project2/herbalife/public/provider/profile_provider.dart';
 import 'package:project2/herbalife/public/service/dio_client.dart';
 
 class CartProvider extends ChangeNotifier {
@@ -13,6 +14,7 @@ class CartProvider extends ChangeNotifier {
   String? id;
   int? invoiceId;
   int cartCount = 0;
+  double point = 0.0;
   List<CartItemModel> cartItems = [];
   Map<int, int> productInvoiceMap = {};
 
@@ -33,24 +35,25 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
     try {
       id ??= await dataProvider.readSecureData('userId');
-      print('The id is $id');
       final response = await _dio.get(('$accounturl/getitem/$id'));
       final data = response.data;
       if (response.statusCode == 200) {
         final cart = CartModel.fromJson(data);
         cartItems = cart.data;
+        // Sum up total points: unit point * quantity
+        point = cartItems.fold(0.0, (sum, item) => sum + (double.tryParse(item.point) ?? 0.0) * item.quantity);
         message = cart.message;
       } else {
         cartItems = [];
+        point = 0.0;
         message = data['message'];
       }
     } catch (e) {
       if (e is DioException && e.response != null) {
-        // server responded but with non-2xx (404, 500 etc)
         cartItems = [];
+        point = 0.0;
         message = e.response?.data['message'] ?? "Failed";
       } else {
-        // actual network error (no internet, timeout)
         message = "Network error: $e";
       }
     } finally {
@@ -131,50 +134,38 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> plusinfos(double point) async {
+  Future<void> plusinfos(double point, ProfileProvider profileProvider) async {
     message = "";
-    isLoading = true;
-    notifyListeners();
     try {
       id ??= await dataProvider.readSecureData('userId');
       final response = await _dio.patch(
-        '$accounturl/plusinfospoint',
+        '$accounturl/plusinfos',
         data: {'id': id, 'point': point},
       );
-      final data = response.data;
       if (response.statusCode == 200) {
-        message = data['message'];
-      } else {
-        message = data['message'];
+        await profileProvider.getProfile();
       }
     } catch (e) {
       message = "Network failed: $e";
     } finally {
-      isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> minusinfos(double point) async {
+  Future<void> minusinfos(double point, ProfileProvider profileProvider) async {
     message = "";
-    isLoading = true;
-    notifyListeners();
     try {
       id ??= await dataProvider.readSecureData('userId');
       final response = await _dio.patch(
         '$accounturl/removeinfos',
         data: {'id': id, 'point': point},
       );
-      final data = response.data;
       if (response.statusCode == 200) {
-        message = data['message'];
-      } else {
-        message = data['message'];
+        await profileProvider.getProfile();
       }
     } catch (e) {
       message = "Network failed: $e";
     } finally {
-      isLoading = false;
       notifyListeners();
     }
   }

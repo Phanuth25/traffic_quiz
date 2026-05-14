@@ -3,6 +3,7 @@ import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:project2/herbalife/public/provider/cart_provider.dart';
 import 'package:project2/herbalife/public/provider/profile_provider.dart';
+
 class ImageCounterCard extends StatefulWidget {
   final String imagepath;
   final String product;
@@ -29,7 +30,6 @@ class ImageCounterCard extends StatefulWidget {
 
 class _ImageCounterCardState extends State<ImageCounterCard>
     with SingleTickerProviderStateMixin {
-  // counter is removed — derived from provider instead
   AnimationController? _selectAnim;
   Animation<double>? _scaleAnim;
 
@@ -54,7 +54,7 @@ class _ImageCounterCardState extends State<ImageCounterCard>
   }
 
   double _getEffectivePrice(int discount) {
-    final double originalPrice = double.parse(widget.price);
+    final double originalPrice = double.tryParse(widget.price) ?? 0.0;
     if (discount > 0) {
       return originalPrice * (1 - discount / 100);
     }
@@ -70,10 +70,9 @@ class _ImageCounterCardState extends State<ImageCounterCard>
   Widget build(BuildContext context) {
     final cartProvider = context.watch<CartProvider>();
     final profileProvider = context.watch<ProfileProvider>();
-    final int userId = int.parse(profileProvider.id ?? '0');
-    final int productId = int.parse(widget.id);
+    final int userId = int.tryParse(profileProvider.id ?? '0') ?? 0;
+    final int productId = int.tryParse(widget.id) ?? 0;
 
-    // derive both isSelected and currentCounter from provider
     final cartItem = cartProvider.cartItems
         .where((item) => item.product == productId)
         .firstOrNull;
@@ -93,18 +92,19 @@ class _ImageCounterCardState extends State<ImageCounterCard>
         onTap: () async {
           final bool wasSelected = isSelected;
           _onTap();
-
+          // first select
           if (!wasSelected) {
             // card is being selected → add item
             await cartProvider.postitem(userId, productId, 1);
-            await cartProvider.plusinfos(double.parse(widget.point));
+            await cartProvider.plusinfos(double.parse(widget.point), profileProvider);
           } else {
             // card is being deselected → remove item
             final int? invoiceId = cartProvider.getInvoiceId(productId);
             if (invoiceId != null) {
+              final double pointsToRemove = currentCounter * (double.tryParse(widget.point) ?? 0.0);
               await cartProvider.deleteitem(invoiceId);
               cartProvider.clearInvoiceId(productId);
-              await cartProvider.minusinfos(double.parse(widget.point));
+              await cartProvider.minusinfos(pointsToRemove, profileProvider);
             }
           }
         },
@@ -132,7 +132,6 @@ class _ImageCounterCardState extends State<ImageCounterCard>
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // ── product image ──────────────────────────────
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(18),
@@ -149,7 +148,6 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                         fit: BoxFit.contain,
                       ),
                     ),
-                    // selected badge
                     if (isSelected)
                       Positioned(
                         top: 8,
@@ -167,7 +165,6 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                           ),
                         ),
                       ),
-                    // discount badge
                     if (discount > 0)
                       Positioned(
                         top: 8,
@@ -194,8 +191,6 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                   ],
                 ),
               ),
-
-              // ── product info ───────────────────────────────
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
                 child: Column(
@@ -214,8 +209,6 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                       ),
                     ),
                     const SizedBox(height: 6),
-
-                    // price row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -243,8 +236,6 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                       ],
                     ),
                     const SizedBox(height: 4),
-
-                    // points chip
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -277,8 +268,6 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                   ],
                 ),
               ),
-
-              // ── counter row ────────────────────────────────
               if (isSelected) ...[
                 const SizedBox(height: 8),
                 Padding(
@@ -303,12 +292,12 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                             if (invoiceId == null || currentCounter <= 0) return;
 
                             if (currentCounter == 1) {
-                              // last item → delete the row and deselect
                               await cartProvider.deleteitem(invoiceId);
                               cartProvider.clearInvoiceId(productId);
+                              await cartProvider.minusinfos(double.parse(widget.point), profileProvider);
                             } else {
-                              // just reduce quantity
                               await cartProvider.postitem2(invoiceId, currentCounter - 1);
+                              await cartProvider.minusinfos(double.parse(widget.point), profileProvider);
                             }
                             widget.onSelect2();
                           },
@@ -322,15 +311,13 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                                 bottomLeft: Radius.circular(10),
                               ),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.remove_rounded,
-                              color: Colors.red.shade400,
+                              color: Colors.red,
                               size: 18,
                             ),
                           ),
                         ),
-
-                        // count — now driven by provider
                         Text(
                           '$currentCounter',
                           style: const TextStyle(
@@ -339,14 +326,17 @@ class _ImageCounterCardState extends State<ImageCounterCard>
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-
                         // plus
                         GestureDetector(
                           onTap: () async {
                             widget.onSelect();
+                            if (!mounted) return; // ← add this guard before using widget/context
                             final int? invoiceId = cartProvider.getInvoiceId(productId);
                             if (invoiceId != null) {
                               await cartProvider.postitem2(invoiceId, currentCounter + 1);
+                              if (!mounted) return; // ← add this guard before using widget/context
+                              await cartProvider.plusinfos(double.parse(widget.point), profileProvider);
+
                               if(!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

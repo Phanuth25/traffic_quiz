@@ -101,7 +101,9 @@ class _ProductState extends State<Product> with TickerProviderStateMixin {
 
                       // Help button
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          _showMyDialog();
+                        },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 14,
@@ -556,5 +558,33 @@ class _ProductState extends State<Product> with TickerProviderStateMixin {
       entry.remove();
       animController.dispose();
     });
+  }
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Items Saved in Cart'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Your selected products will remain in your cart even if you close the app.'),
+                SizedBox(height: 10), // Added for better spacing
+                Text('To remove any items, please go to your Cart page and tap the trash icon.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Understood'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

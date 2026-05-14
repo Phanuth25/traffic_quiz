@@ -3,6 +3,7 @@ import 'package:project2/herbalife/public/constants/constants.dart';
 import 'package:project2/herbalife/public/page/payment_screen.dart';
 import 'package:project2/herbalife/public/widget/welcome.dart';
 import 'package:project2/herbalife/public/provider/cart_provider.dart';
+import 'package:project2/herbalife/public/provider/profile_provider.dart';
 import 'package:provider/provider.dart';
 
 class Cart extends StatefulWidget {
@@ -47,6 +48,7 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final cartProvider = context.watch<CartProvider>();
+    final profileProvider = context.watch<ProfileProvider>();
     final double totalPoint = cartProvider.cartItems.fold(
       0,
       (sum, item) => sum + double.parse(item.point),
@@ -353,8 +355,10 @@ class _CartState extends State<Cart> with SingleTickerProviderStateMixin {
                                                 ),
                                                 child: GestureDetector(
                                                   onTap: () async {
+                                                    final double pointToRemove = double.parse(item.point); // capture first
                                                     await cartProvider
                                                         .deleteitem(item.id);
+                                                    await cartProvider.minusinfos(pointToRemove, profileProvider);
                                                   },
                                                   child: const Icon(
                                                     Icons
