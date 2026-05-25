@@ -37,7 +37,7 @@ class _TechnicalQuizScreenState extends State<TechnicalQuizScreen> {
   void _calculateFinalScore() {
     int finalScore = 0;
     _selectedAnswersHistory.forEach((questionIndex, chosenAnswerIndex) {
-      final actualQuestion = _questions[questionIndex];
+      final actualQuestion = _randomizedQuestions[questionIndex];
       if (chosenAnswerIndex == actualQuestion.correctAnswer) {
         finalScore++;
         point.value = point.value + finalScore;
@@ -149,11 +149,16 @@ class _TechnicalQuizScreenState extends State<TechnicalQuizScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: LinearProgressIndicator(
-                minHeight: 10,
-                value: (_currentIndex + 1) / _questions.length,
-                backgroundColor: Colors.grey.shade300,
-                valueColor: const AlwaysStoppedAnimation(Colors.deepPurple),
+              child: ValueListenableBuilder<int>(
+                valueListenable: progressValue,
+                builder: (context, value, child) {
+                  return LinearProgressIndicator(
+                    minHeight: 10,
+                    value: value / 45,
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor: const AlwaysStoppedAnimation(Colors.deepPurple),
+                  );
+                }
               ),
             ),
           ),
@@ -283,102 +288,114 @@ class _TechnicalQuizScreenState extends State<TechnicalQuizScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      _currentIndex > 0 ? _previousQuestion() : null;
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(
-                        color: _currentIndex > 0
-                            ? Colors.deepPurple
-                            : Colors.grey.shade400,
-                        width: 1.5,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                    child: Text(
-                      'ថយក្រោយ',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: _currentIndex > 0
-                            ? Colors.deepPurple
-                            : Colors.grey,
-                        fontFamily: 'KhmerFont',
-                      ),
-                    ),
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: progressValue,
+                    builder: (context, value, child) {
+                      return OutlinedButton(
+                        onPressed: () {
+                          _currentIndex > 0 ? progressValue.value-- : null;
+                          _currentIndex > 0 ? _previousQuestion() : null;
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(
+                            color: _currentIndex > 0
+                                ? Colors.deepPurple
+                                : Colors.grey.shade400,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        child: Text(
+                          'ថយក្រោយ',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: _currentIndex > 0
+                                ? Colors.deepPurple
+                                : Colors.grey,
+                            fontFamily: 'KhmerFont',
+                          ),
+                        ),
+                      );
+                    }
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_selectedAnswerIndex == null) {
-                        const snackBar = SnackBar(
-                          content: Row(
-                            children: [
-                              Icon(
-                                Icons.warning_amber_rounded,
-                                color: Colors.white,
-                              ),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Select an answer to move forward.',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: progressValue,
+                    builder: (context, value, child) {
+                      return ElevatedButton(
+                        onPressed: () {
+                          if (_selectedAnswerIndex == null) {
+                            const snackBar = SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
                                     color: Colors.white,
                                   ),
-                                ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Select an answer to move forward.',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                              backgroundColor: Colors.redAccent,
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.all(16),
+                              elevation: 10,
+                              duration: Duration(seconds: 2),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          }
+                          if (_selectedAnswerIndex != null) {
+                            _makeanswers();
+                            if (_currentIndex == _questions.length - 1) {
+                              _calculateFinalScore();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EmergencyQuizScreen(),
+                                ),
+                              );
+                            } else {
+                              progressValue.value++;
+                              _nextQuestion();
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.deepPurple,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
                           ),
-                          backgroundColor: Colors.redAccent,
-                          behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.all(16),
-                          elevation: 10,
-                          duration: Duration(seconds: 2),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
-                      if (_selectedAnswerIndex != null) {
-                        _makeanswers();
-                        if (_currentIndex == _questions.length - 1) {
-                          _calculateFinalScore();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EmergencyQuizScreen(),
-                            ),
-                          );
-                        } else {
-                          _nextQuestion();
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                    child: Text(
-                      _currentIndex == _questions.length - 1
-                          ? 'បញ្ចប់'
-                          : 'ទៅមុខ',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'KhmerFont',
-                      ),
-                    ),
+                        ),
+                        child: Text(
+                          _currentIndex == _questions.length - 1
+                              ? 'បញ្ចប់'
+                              : 'ទៅមុខ',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'KhmerFont',
+                          ),
+                        ),
+                      );
+                    }
                   ),
                 ),
               ],

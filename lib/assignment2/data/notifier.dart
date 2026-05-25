@@ -6,6 +6,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 ValueNotifier<int> point = ValueNotifier<int>(0);
 ValueNotifier<bool> isAutoFail = ValueNotifier<bool>(false);
+ValueNotifier<int> progressValue = ValueNotifier<int>(1);
 
 // Timer State
 ValueNotifier<int> remainingSeconds = ValueNotifier<int>(2700); // 30 minutes

@@ -74,7 +74,7 @@ class ResultScreen extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               const Text(
-                'You answered incorrectly on priority questions too many times!.',
+                'You answered incorrectly on priority questions!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -124,6 +124,7 @@ class ResultScreen extends StatelessWidget {
                   ),
                   onPressed: () {
                     resetQuiz();
+                    progressValue.value = 1;
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => const GeneralQuizScreen()),

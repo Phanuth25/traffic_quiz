@@ -23,6 +23,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
   final Map<int, int> _selectedAnswersHistory = {};
   int finalScore = 0;
   bool _isScoreCalculated = false;
+
   // 1. Create a fresh list to hold the randomized sequence
   final List<Question> _randomizedQuestions = [];
 
@@ -80,7 +81,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
     // Loop through every answered question in your history map
     _selectedAnswersHistory.forEach((questionIndex, chosenAnswerIndex) {
       // Look up the actual question object using the index key
-      final actualQuestion = _questions[questionIndex];
+      final actualQuestion = _randomizedQuestions[questionIndex];
 
       // Check if the user's choice matches the correct answer key
       if (chosenAnswerIndex == actualQuestion.correctAnswer) {
@@ -204,11 +205,16 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: LinearProgressIndicator(
-                minHeight: 10,
-                value: (_currentIndex + 1) / _questions.length,
-                backgroundColor: Colors.grey.shade300,
-                valueColor: const AlwaysStoppedAnimation(Colors.deepPurple),
+              child: ValueListenableBuilder<int>(
+                valueListenable: progressValue,
+                builder: (context, value, child) {
+                  return LinearProgressIndicator(
+                    minHeight: 10,
+                    value: value / 45,
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor: const AlwaysStoppedAnimation(Colors.deepPurple),
+                  );
+                },
               ),
             ),
           ),
@@ -280,7 +286,9 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                                     height: 45,
                                     width: 45,
                                     decoration: BoxDecoration(
-                                      color: Colors.deepPurple.withValues(alpha: 0.1),
+                                      color: Colors.deepPurple.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: const Icon(
@@ -353,250 +361,275 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      _currentIndex > 0 ? _previousQuestion() : null;
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: progressValue,
+                    builder: (context, value, child) {
+                      return OutlinedButton(
+                        onPressed: () {
+                          if (_currentIndex > 0) {
+                            progressValue.value--;
+                            _previousQuestion();
+                          }
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(
+                            color: _currentIndex > 0
+                                ? Colors.deepPurple
+                                : Colors.grey.shade400,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        child: Text(
+                          'ថយក្រោយ',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: _currentIndex > 0
+                                ? Colors.deepPurple
+                                : Colors.grey,
+                            fontFamily: 'KhmerFont',
+                          ),
+                        ),
+                      );
                     },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(
-                        color: _currentIndex > 0
-                            ? Colors.deepPurple
-                            : Colors.grey.shade400,
-                        width: 1.5,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                    child: Text(
-                      'ថយក្រោយ',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: _currentIndex > 0
-                            ? Colors.deepPurple
-                            : Colors.grey,
-                        fontFamily: 'KhmerFont',
-                      ),
-                    ),
                   ),
                 ),
 
                 const SizedBox(width: 16),
 
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_selectedAnswerIndex == null) {
-                        const snackBar = SnackBar(
-                          content: Row(
-                            children: [
-                              Icon(
-                                Icons.warning_amber_rounded,
-                                color: Colors.white,
-                              ),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Select an answer to move forward.',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: progressValue,
+                    builder: (context, value, child) {
+                      return ElevatedButton(
+                        onPressed: () {
+                          if (_selectedAnswerIndex == null) {
+                            const snackBar = SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
                                     color: Colors.white,
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          backgroundColor: Colors.redAccent,
-                          behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.all(16),
-                          elevation: 10,
-                          duration: Duration(seconds: 2),
-                        );
-
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
-
-                      if (_selectedAnswerIndex != null) {
-                        _makeanswers();
-
-                        if (_currentIndex == _questions.length - 1) {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              return Dialog(
-                                backgroundColor: Colors.transparent,
-                                child: Container(
-                                  padding: const EdgeInsets.all(24),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(28),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.12,
-                                        ),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 10),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Select an answer to move forward.',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
                                       ),
-                                    ],
+                                    ),
                                   ),
+                                ],
+                              ),
+                              backgroundColor: Colors.redAccent,
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.all(16),
+                              elevation: 10,
+                              duration: Duration(seconds: 2),
+                            );
 
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      // ICON
-                                      Container(
-                                        height: 90,
-                                        width: 90,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.orange.withValues(
-                                            alpha: 0.12,
-                                          ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.warning_amber_rounded,
-                                          size: 50,
-                                          color: Colors.orange,
-                                        ),
-                                      ),
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(snackBar);
+                          }
 
-                                      const SizedBox(height: 24),
+                          if (_selectedAnswerIndex != null) {
+                            _makeanswers();
 
-                                      // TITLE
-                                      const Text(
-                                        "បញ្ជាក់",
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'KhmerFont',
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-
-                                      const SizedBox(height: 16),
-
-                                      // CONTENT
-                                      const Text(
-                                        "ប្រសិនបើចុចទៅខាងមុខ អ្នកមិនអាចត្រឡប់ក្រោយបានទេ",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          height: 1.6,
-                                          color: Colors.black54,
-                                          fontFamily: 'KhmerFont',
-                                        ),
-                                      ),
-
-                                      const SizedBox(height: 30),
-
-                                      // BUTTONS
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: OutlinedButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              style: OutlinedButton.styleFrom(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      vertical: 16,
-                                                    ),
-                                                side: BorderSide(
-                                                  color: Colors.grey.shade400,
-                                                ),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(18),
-                                                ),
-                                              ),
-                                              child: const Text(
-                                                "អត់",
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: 'KhmerFont',
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
+                            if (_currentIndex == _questions.length - 1) {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return Dialog(
+                                    backgroundColor: Colors.transparent,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(28),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.12,
                                             ),
-                                          ),
-
-                                          const SizedBox(width: 14),
-
-                                          Expanded(
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                _calculateFinalScore();
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SignQuizScreen(),
-                                                  ),
-                                                );
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    Colors.deepPurple,
-                                                foregroundColor: Colors.white,
-                                                elevation: 0,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      vertical: 16,
-                                                    ),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(18),
-                                                ),
-                                              ),
-                                              child: const Text(
-                                                "ទៅមុខ",
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: 'KhmerFont',
-                                                ),
-                                              ),
-                                            ),
+                                            blurRadius: 20,
+                                            offset: const Offset(0, 10),
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ),
+
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          // ICON
+                                          Container(
+                                            height: 90,
+                                            width: 90,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.orange.withValues(
+                                                alpha: 0.12,
+                                              ),
+                                            ),
+                                            child: const Icon(
+                                              Icons.warning_amber_rounded,
+                                              size: 50,
+                                              color: Colors.orange,
+                                            ),
+                                          ),
+
+                                          const SizedBox(height: 24),
+
+                                          // TITLE
+                                          const Text(
+                                            "បញ្ជាក់",
+                                            style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'KhmerFont',
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+
+                                          const SizedBox(height: 16),
+
+                                          // CONTENT
+                                          const Text(
+                                            "ប្រសិនបើចុចទៅខាងមុខ អ្នកមិនអាចត្រឡប់ក្រោយបានទេ",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              height: 1.6,
+                                              color: Colors.black54,
+                                              fontFamily: 'KhmerFont',
+                                            ),
+                                          ),
+
+                                          const SizedBox(height: 30),
+
+                                          // BUTTONS
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: OutlinedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  style: OutlinedButton.styleFrom(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 16,
+                                                        ),
+                                                    side: BorderSide(
+                                                      color:
+                                                          Colors.grey.shade400,
+                                                    ),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            18,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    "អត់",
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: 'KhmerFont',
+                                                      color: Colors.black87,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+                                              const SizedBox(width: 14),
+
+                                              Expanded(
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    _calculateFinalScore();
+                                                    progressValue.value++;
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const SignQuizScreen(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.deepPurple,
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                    elevation: 0,
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 16,
+                                                        ),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            18,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    "ទៅមុខ",
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: 'KhmerFont',
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
                               );
-                            },
-                          );
-                        } else {
-                          _nextQuestion();
-                        }
-                      }
+                            } else {
+                              progressValue.value++;
+                              _nextQuestion();
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.deepPurple,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        child: Text(
+                          _currentIndex == _questions.length - 1
+                              ? 'បញ្ចប់'
+                              : 'ទៅមុខ',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'KhmerFont',
+                          ),
+                        ),
+                      );
                     },
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                    child: Text(
-                      _currentIndex == _questions.length - 1
-                          ? 'បញ្ចប់'
-                          : 'ទៅមុខ',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'KhmerFont',
-                      ),
-                    ),
                   ),
                 ),
               ],

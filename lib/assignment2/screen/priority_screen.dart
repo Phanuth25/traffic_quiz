@@ -30,32 +30,15 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
   }
 
   void _makeanswers() {
-    _selectedAnswerIndex ??= 5;
-    _selectedAnswersHistory[_currentIndex] = _selectedAnswerIndex!;
-  }
-
-  void _answercount() {
-    int answercount = 0;
-    _selectedAnswersHistory.forEach((questionIndex, chosenAnswerIndex) {
-      if (_selectedAnswersHistory[questionIndex] == 5) {
-        answercount++;
-      }
-    });
-    if (answercount == 4) {
-      isAutoFail.value = true;
-      quizTimer?.cancel();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const ResultScreen()),
-        (route) => false,
-      );
+    if (_selectedAnswerIndex != null) {
+      _selectedAnswersHistory[_currentIndex] = _selectedAnswerIndex!;
     }
   }
 
   void _calculateFinalScore() {
     int tempscore = 0;
     _selectedAnswersHistory.forEach((questionIndex, chosenAnswerIndex) {
-      final actualQuestion = _questions[questionIndex];
+      final actualQuestion = _randomizedQuestions[questionIndex];
       if (chosenAnswerIndex == actualQuestion.correctAnswer) {
         tempscore++;
       }
@@ -168,11 +151,16 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: LinearProgressIndicator(
-                minHeight: 10,
-                value: (_currentIndex + 1) / _questions.length,
-                backgroundColor: Colors.grey.shade300,
-                valueColor: const AlwaysStoppedAnimation(Colors.deepPurple),
+              child: ValueListenableBuilder<int>(
+                valueListenable: progressValue,
+                builder: (context, value, child) {
+                  return LinearProgressIndicator(
+                    minHeight: 10,
+                    value: value / 45,
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor: const AlwaysStoppedAnimation(Colors.deepPurple),
+                  );
+                }
               ),
             ),
           ),
@@ -333,73 +321,131 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      _currentIndex > 0 ? _previousQuestion() : null;
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(
-                        color: _currentIndex > 0
-                            ? Colors.deepPurple
-                            : Colors.grey.shade400,
-                        width: 1.5,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                    child: Text(
-                      'ថយក្រោយ',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: _currentIndex > 0
-                            ? Colors.deepPurple
-                            : Colors.grey,
-                        fontFamily: 'KhmerFont',
-                      ),
-                    ),
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: progressValue,
+                    builder: (context, value, child) {
+                      return OutlinedButton(
+                        onPressed: () {
+                          if (_currentIndex > 0) {
+                            progressValue.value--;
+                            _previousQuestion();
+                          }
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(
+                            color: _currentIndex > 0
+                                ? Colors.deepPurple
+                                : Colors.grey.shade400,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        child: Text(
+                          'ថយក្រោយ',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: _currentIndex > 0
+                                ? Colors.deepPurple
+                                : Colors.grey,
+                            fontFamily: 'KhmerFont',
+                          ),
+                        ),
+                      );
+                    }
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _makeanswers();
-                      if (_currentIndex == _questions.length - 1) {
-                        quizTimer?.cancel();
-                        _answercount();
-                        _calculateFinalScore();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ResultScreen(),
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: progressValue,
+                    builder: (context, value, child) {
+                      return ElevatedButton(
+                        onPressed: () {
+                          if (_selectedAnswerIndex == null) {
+                            const snackBar = SnackBar(
+                              content: Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber_rounded,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Select an answer to move forward.',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: Colors.redAccent,
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.all(16),
+                              elevation: 10,
+                              duration: Duration(seconds: 2),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            return;
+                          }
+
+                          _makeanswers();
+
+                          // Check if the current answer is wrong
+                          final currentQuestion = _randomizedQuestions[_currentIndex];
+                          if (_selectedAnswerIndex != currentQuestion.correctAnswer) {
+                            isAutoFail.value = true;
+                            quizTimer?.cancel();
+                            _calculateFinalScore();
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ResultScreen()),
+                              (route) => false,
+                            );
+                            return;
+                          }
+
+                          if (_currentIndex == _questions.length - 1) {
+                            quizTimer?.cancel();
+                            _calculateFinalScore();
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ResultScreen()),
+                              (route) => false,
+                            );
+                          } else {
+                            progressValue.value++;
+                            _nextQuestion();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.deepPurple,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
                           ),
-                        );
-                      } else {
-                        _nextQuestion();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                    child: Text(
-                      _currentIndex == _questions.length - 1
-                          ? 'បញ្ចប់'
-                          : 'ទៅមុខ',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'KhmerFont',
-                      ),
-                    ),
+                        ),
+                        child: Text(
+                          _currentIndex == _questions.length - 1
+                              ? 'បញ្ចប់'
+                              : 'ទៅមុខ',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'KhmerFont',
+                          ),
+                        ),
+                      );
+                    }
                   ),
                 ),
               ],
