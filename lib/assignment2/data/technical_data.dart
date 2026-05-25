@@ -1,0 +1,52 @@
+import 'package:project2/assignment2/model/technical_model.dart';
+// technical_data.dart
+
+class TechnicalQuizData {
+  static final List<Question> technicalQuestions = [
+    Question(
+      id: 1,
+      question: "នៅពេលយប់ក្នុងពេលជួបយានយន្ត មកពីទិសផ្ទុយ តើអ្នកត្រូវទំលាក់ភ្លើងហ្វាមកកូតវិញ ក្នុងចំងាយប៉ុន្មាន?",
+      answer1: "ក- ប្រហែល ៣៥ម៉ែត្រ",
+      answer2: "ខ- ប្រហែល ៧៥ម៉ែត្រ",
+      answer3: "គ- ប្រហែល ១៦០ម៉ែត្រ",
+      correctAnswer: 2,
+      category: "Technical question",
+    ),
+    Question(
+      id: 2,
+      question: "មុននឹងចូលក្នុងរថយន្ត ដើម្បីចាប់ផ្ដើមបើកបរ រថយន្តថយក្រោយ តើអ្នកត្រូវធ្វើអ្វីខ្លះ?",
+      answer1: "ក- ត្រូវមើលទៅមុខអោយបានចំងាយគ្រប់គ្រាន់រួចអោយសញ្ញា និងបើកយឺតៗថយក្រោយ",
+      answer2: "ខ- ត្រូវមើលផ្នែកខាងក្រោយរថយន្តអោយបានច្បាស់សិន រួចអោយសញ្ញា និងបើកយឺតៗថយក្រោយ",
+      answer3: "គ- ត្រូវមើលផ្នែកខាងស្ដាំរថយន្តអោយបានគ្រប់គ្រាន់ រួចអោយសញ្ញា និងបើកយឺតៗថយក្រោយ",
+      correctAnswer: 1,
+      category: "Technical question",
+    ),
+    Question(
+      id: 3,
+      question: "តើអ្វីជាគ្រោះថ្នាក់ ដែលអ្នកត្រូវស្គាល់ក្នុងការបើកបរ?",
+      answer1: "ក- អាគារដែលស្ថិតនៅជិតផ្លូវ",
+      answer2: "ខ- ភ្នំដែលស្ថិតនៅជិតផ្លូវ",
+      answer3: "គ- ផ្លូវ និង អ្នកប្រើប្រាស់ផ្លូវ",
+      correctAnswer: 2,
+      category: "Technical question",
+    ),
+    Question(
+      id: 4,
+      question: "នៅពេលហ្វ្រាំងខូច តើអ្នកត្រូវធ្វើដូចម្ដេច?",
+      answer1: "ក- ដកលេខចុះតាមលំដាប់ និងចាប់ហ្វ្រាំងដៃថ្នមៗ រកកន្លែងចតរថយន្ត",
+      answer2: "ខ- បន្ថែមលេខឡើងរកកន្លែងចតរថយន្ត",
+      answer3: "គ- មិនបាច់ធ្វើអ្វីទាំងអស់ទុកអោយរថយន្តឈប់តាមសំរួល",
+      correctAnswer: 0,
+      category: "Technical question",
+    ),
+    Question(
+      id: 5,
+      question: "នៅពេលបើកចូលផ្លូវកោង តើកំលាំងអ្វីដែលអាចធ្វើអោយរថយន្តក្រឡាប់?",
+      answer1: "ក- កំលាំងម៉ាស៊ីន",
+      answer2: "ខ- កំលាំងចាកផ្ចិត",
+      answer3: "គ- កំលាំងមនុស្ស",
+      correctAnswer: 1,
+      category: "Technical question",
+    ),
+  ];
+}

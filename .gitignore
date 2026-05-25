@@ -74,6 +74,7 @@ lib/profile_figma.dart
 lib/trainer_figma.dart
 lib/shoulder_figma.dart
 lib/language_provider.dart
+lib/herbalife/
 
 .env
 lib/herbalife/private/.env
@@ -86,7 +87,7 @@ flutter_01.png
 flutter_02.png
 flutter_03.png
 lib/herbalife/note.txt
-
+README.md
 # Unrelated assets
 assets/lotties/
 assets/rive/
@@ -100,3 +101,4 @@ assets/images/back.png
 assets/images/chest.png
 assets/images/muscle.png
 assets/images/trainer.png
+

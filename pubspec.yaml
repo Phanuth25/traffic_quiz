@@ -42,10 +42,11 @@ flutter:
   fonts:
     - family: KhmerFont
       fonts:
-        - asset: assets/font/KhmerOSmuollight.ttf
-          weight: 700
+        - asset: assets/font/KantumruyPro-VariableFont_wght.ttf
+          weight: 900
 
   assets:
     - assets/images/
     - assets/lotties/
     - assets/rive/
+    - lib/assignment2/assets/
