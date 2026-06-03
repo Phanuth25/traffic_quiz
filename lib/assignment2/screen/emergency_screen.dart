@@ -15,7 +15,8 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
   int? _selectedAnswerIndex;
-  final List<EmergencyQuestion> _questions = EmergencyQuizData.emergencyQuestions;
+  final List<EmergencyQuestion> _questions =
+      EmergencyQuizData.emergencyQuestions;
   final Map<int, int> _selectedAnswersHistory = {};
   final List<EmergencyQuestion> _randomizedQuestions = [];
 
@@ -80,6 +81,7 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -93,9 +95,14 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
                 builder: (context, seconds, child) {
                   bool isLowTime = seconds < 60;
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: isLowTime ? Colors.red.withValues(alpha:0.1) : Colors.deepPurple.withValues(alpha:0.1),
+                      color: isLowTime
+                          ? Colors.red.withValues(alpha: 0.1)
+                          : Colors.deepPurple.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -158,7 +165,7 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
                     backgroundColor: Colors.grey.shade300,
                     valueColor: const AlwaysStoppedAnimation(Colors.deepPurple),
                   );
-                }
+                },
               ),
             ),
           ),
@@ -181,25 +188,66 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF6A5AE0), Color(0xFF8B7BFF)],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF6A5AE0),
+                                    Color(0xFF8B7BFF),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                currentQuestion.category,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'KhmerFont',
+                                ),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Text(
-                            currentQuestion.category,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'KhmerFont',
+                            ValueListenableBuilder(
+                              valueListenable: totalanswer,
+                              builder: (context, value, child) {
+                                return ValueListenableBuilder(
+                                  valueListenable: currentanswer,
+                                  builder: (context, value, child) {
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF6A5AE0),
+                                            Color(0xFF8B7BFF),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      child: Text(
+                                        '${currentanswer.value}/${totalanswer.value}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'KhmerFont',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                          ),
+                          ],
                         ),
                         const SizedBox(height: 24),
                         Container(
@@ -210,7 +258,7 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha:0.05),
+                                color: Colors.black.withValues(alpha: 0.05),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -225,7 +273,9 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
                                     height: 45,
                                     width: 45,
                                     decoration: BoxDecoration(
-                                      color: Colors.deepPurple.withValues(alpha:0.1),
+                                      color: Colors.deepPurple.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: const Icon(
@@ -279,7 +329,7 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 20,
                   offset: const Offset(0, -4),
                 ),
@@ -293,6 +343,9 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
                     builder: (context, value, child) {
                       return OutlinedButton(
                         onPressed: () {
+                          currentanswer.value > 36
+                              ? currentanswer.value--
+                              : null;
                           _currentIndex > 0 ? progressValue.value-- : null;
                           _currentIndex > 0 ? _previousQuestion() : null;
                         },
@@ -320,7 +373,7 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
                           ),
                         ),
                       );
-                    }
+                    },
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -357,20 +410,177 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
                               elevation: 10,
                               duration: Duration(seconds: 2),
                             );
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(snackBar);
                           }
                           if (_selectedAnswerIndex != null) {
                             _makeanswers();
                             if (_currentIndex == _questions.length - 1) {
-                              _calculateFinalScore();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PriorityQuizScreen(),
-                                ),
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return Dialog(
+                                    backgroundColor: Colors.transparent,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(28),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.12,
+                                            ),
+                                            blurRadius: 20,
+                                            offset: const Offset(0, 10),
+                                          ),
+                                        ],
+                                      ),
+
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          // ICON
+                                          Container(
+                                            height: 90,
+                                            width: 90,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.orange.withValues(
+                                                alpha: 0.12,
+                                              ),
+                                            ),
+                                            child: const Icon(
+                                              Icons.warning_amber_rounded,
+                                              size: 50,
+                                              color: Colors.orange,
+                                            ),
+                                          ),
+
+                                          const SizedBox(height: 24),
+
+                                          // TITLE
+                                          const Text(
+                                            "បញ្ជាក់",
+                                            style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'KhmerFont',
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+
+                                          const SizedBox(height: 16),
+
+                                          // CONTENT
+                                          const Text(
+                                            "ប្រសិនបើចុចទៅខាងមុខ អ្នកមិនអាចត្រឡប់ក្រោយបានទេ",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              height: 1.6,
+                                              color: Colors.black54,
+                                              fontFamily: 'KhmerFont',
+                                            ),
+                                          ),
+
+                                          const SizedBox(height: 30),
+
+                                          // BUTTONS
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: OutlinedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  style: OutlinedButton.styleFrom(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 16,
+                                                        ),
+                                                    side: BorderSide(
+                                                      color:
+                                                          Colors.grey.shade400,
+                                                    ),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            18,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    "អត់",
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: 'KhmerFont',
+                                                      color: Colors.black87,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+                                              const SizedBox(width: 14),
+
+                                              Expanded(
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    _calculateFinalScore();
+                                                    currentanswer.value++;
+                                                    progressValue.value++;
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const PriorityQuizScreen(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.deepPurple,
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                    elevation: 0,
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 16,
+                                                        ),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            18,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    "ទៅមុខ",
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: 'KhmerFont',
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
                               );
                             } else {
                               progressValue.value++;
+                              currentanswer.value++;
                               _nextQuestion();
                             }
                           }
@@ -395,7 +605,7 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
                           ),
                         ),
                       );
-                    }
+                    },
                   ),
                 ),
               ],
@@ -427,8 +637,8 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? Colors.deepPurple.withValues(alpha:0.25)
-                  : Colors.black.withValues(alpha:0.04),
+                  ? Colors.deepPurple.withValues(alpha: 0.25)
+                  : Colors.black.withValues(alpha: 0.04),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),

@@ -93,6 +93,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
   }
 
   void _nextQuestion() {
+    _makeanswers();
     if (_currentIndex < _questions.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -126,9 +127,11 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(
+        automaticallyImplyLeading: _currentIndex == 0 ? true : false,
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -220,7 +223,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
           ),
 
           const SizedBox(height: 20),
-
+          //here
           Expanded(
             child: PageView.builder(
               controller: _pageController,
@@ -233,32 +236,72 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
               },
               itemBuilder: (context, index) {
                 final currentQuestion = _randomizedQuestions[index];
-
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF6A5AE0), Color(0xFF8B7BFF)],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF6A5AE0),
+                                    Color(0xFF8B7BFF),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                currentQuestion.category,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'KhmerFont',
+                                ),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Text(
-                            currentQuestion.category,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'KhmerFont',
+                            ValueListenableBuilder(
+                              valueListenable: totalanswer,
+                              builder: (context, value, child) {
+                                return ValueListenableBuilder(
+                                  valueListenable: currentanswer,
+                                  builder: (context, value, child) {
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF6A5AE0),
+                                            Color(0xFF8B7BFF),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      child: Text(
+                                        '${currentanswer.value}/${totalanswer.value}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'KhmerFont',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                          ),
+                          ],
                         ),
 
                         const SizedBox(height: 24),
@@ -368,6 +411,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                         onPressed: () {
                           if (_currentIndex > 0) {
                             progressValue.value--;
+                            currentanswer.value--;
                             _previousQuestion();
                           }
                         },
@@ -441,8 +485,6 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                           }
 
                           if (_selectedAnswerIndex != null) {
-                            _makeanswers();
-
                             if (_currentIndex == _questions.length - 1) {
                               showDialog(
                                 context: context,
@@ -558,6 +600,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                                                 child: ElevatedButton(
                                                   onPressed: () {
                                                     _calculateFinalScore();
+                                                    currentanswer.value++;
                                                     progressValue.value++;
                                                     Navigator.push(
                                                       context,
@@ -584,9 +627,10 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                                                           ),
                                                     ),
                                                   ),
-                                                  child: const Text(
+                                                  child: Text(
                                                     "ទៅមុខ",
                                                     style: TextStyle(
+                                                      color: Colors.white,
                                                       fontSize: 16,
                                                       fontWeight:
                                                           FontWeight.bold,
@@ -604,6 +648,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                                 },
                               );
                             } else {
+                              currentanswer.value++;
                               progressValue.value++;
                               _nextQuestion();
                             }

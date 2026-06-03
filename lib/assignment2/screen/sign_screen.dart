@@ -94,6 +94,7 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -200,25 +201,66 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF6A5AE0), Color(0xFF8B7BFF)],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF6A5AE0),
+                                    Color(0xFF8B7BFF),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                currentQuestion.category,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'KhmerFont',
+                                ),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Text(
-                            currentQuestion.category,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'KhmerFont',
+                            ValueListenableBuilder(
+                              valueListenable: totalanswer,
+                              builder: (context, value, child) {
+                                return ValueListenableBuilder(
+                                  valueListenable: currentanswer,
+                                  builder: (context, value, child) {
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF6A5AE0),
+                                            Color(0xFF8B7BFF),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      child: Text(
+                                        '${currentanswer.value}/${totalanswer.value}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'KhmerFont',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                          ),
+                          ],
                         ),
 
                         const SizedBox(height: 24),
@@ -363,8 +405,10 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                     builder: (context, value, child) {
                       return OutlinedButton(
                         onPressed: () {
+                          currentanswer.value > 16 ? currentanswer.value-- : null;
                           _currentIndex > 0 ? progressValue.value-- : null;
                           _currentIndex > 0 ? _previousQuestion() : null;
+
                         },
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -390,7 +434,7 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                           ),
                         ),
                       );
-                    }
+                    },
                   ),
                 ),
 
@@ -430,7 +474,9 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                               duration: Duration(seconds: 2),
                             );
 
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(snackBar);
                           }
 
                           if (_selectedAnswerIndex != null) {
@@ -522,18 +568,22 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                                                           vertical: 16,
                                                         ),
                                                     side: BorderSide(
-                                                      color: Colors.grey.shade400,
+                                                      color:
+                                                          Colors.grey.shade400,
                                                     ),
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius:
-                                                          BorderRadius.circular(18),
+                                                          BorderRadius.circular(
+                                                            18,
+                                                          ),
                                                     ),
                                                   ),
                                                   child: const Text(
                                                     "អត់",
                                                     style: TextStyle(
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontFamily: 'KhmerFont',
                                                       color: Colors.black87,
                                                     ),
@@ -547,6 +597,8 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                                                 child: ElevatedButton(
                                                   onPressed: () {
                                                     _calculateFinalScore();
+                                                    currentanswer.value++;
+                                                    progressValue.value++;
                                                     Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
@@ -558,7 +610,8 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                                                   style: ElevatedButton.styleFrom(
                                                     backgroundColor:
                                                         Colors.deepPurple,
-                                                    foregroundColor: Colors.white,
+                                                    foregroundColor:
+                                                        Colors.white,
                                                     elevation: 0,
                                                     padding:
                                                         const EdgeInsets.symmetric(
@@ -566,14 +619,17 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                                                         ),
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius:
-                                                          BorderRadius.circular(18),
+                                                          BorderRadius.circular(
+                                                            18,
+                                                          ),
                                                     ),
                                                   ),
                                                   child: const Text(
                                                     "ទៅមុខ",
                                                     style: TextStyle(
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontFamily: 'KhmerFont',
                                                     ),
                                                   ),
@@ -589,6 +645,7 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                               );
                             } else {
                               progressValue.value++;
+                              currentanswer.value++;
                               _nextQuestion();
                             }
                           }
@@ -613,7 +670,7 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                           ),
                         ),
                       );
-                    }
+                    },
                   ),
                   // ElevatedButton
                 ),

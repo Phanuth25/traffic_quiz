@@ -82,6 +82,7 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -95,9 +96,14 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                 builder: (context, seconds, child) {
                   bool isLowTime = seconds < 60;
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: isLowTime ? Colors.red.withValues(alpha: 0.1) : Colors.deepPurple.withValues(alpha: 0.1),
+                      color: isLowTime
+                          ? Colors.red.withValues(alpha: 0.1)
+                          : Colors.deepPurple.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -160,7 +166,7 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                     backgroundColor: Colors.grey.shade300,
                     valueColor: const AlwaysStoppedAnimation(Colors.deepPurple),
                   );
-                }
+                },
               ),
             ),
           ),
@@ -183,25 +189,66 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF6A5AE0), Color(0xFF8B7BFF)],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF6A5AE0),
+                                    Color(0xFF8B7BFF),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                currentQuestion.category,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'KhmerFont',
+                                ),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Text(
-                            currentQuestion.category,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'KhmerFont',
+                            ValueListenableBuilder(
+                              valueListenable: totalanswer,
+                              builder: (context, value, child) {
+                                return ValueListenableBuilder(
+                                  valueListenable: currentanswer,
+                                  builder: (context, value, child) {
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF6A5AE0),
+                                            Color(0xFF8B7BFF),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      child: Text(
+                                        '${currentanswer.value}/${totalanswer.value}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'KhmerFont',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                          ),
+                          ],
                         ),
                         const SizedBox(height: 24),
                         Container(
@@ -227,7 +274,9 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                                     height: 45,
                                     width: 45,
                                     decoration: BoxDecoration(
-                                      color: Colors.deepPurple.withValues(alpha: 0.1),
+                                      color: Colors.deepPurple.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: const Icon(
@@ -252,13 +301,17 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
-                                        Colors.deepPurple.withValues(alpha: 0.08),
+                                        Colors.deepPurple.withValues(
+                                          alpha: 0.08,
+                                        ),
                                         Colors.blue.withValues(alpha: 0.05),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(24),
                                     border: Border.all(
-                                      color: Colors.deepPurple.withValues(alpha: 0.15),
+                                      color: Colors.deepPurple.withValues(
+                                        alpha: 0.15,
+                                      ),
                                       width: 1.5,
                                     ),
                                   ),
@@ -271,7 +324,9 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                                       borderRadius: BorderRadius.circular(22),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.08),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.08,
+                                          ),
                                           blurRadius: 18,
                                           offset: const Offset(0, 10),
                                         ),
@@ -327,6 +382,7 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                       return OutlinedButton(
                         onPressed: () {
                           if (_currentIndex > 0) {
+                            currentanswer.value--;
                             progressValue.value--;
                             _previousQuestion();
                           }
@@ -355,7 +411,7 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                           ),
                         ),
                       );
-                    }
+                    },
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -392,21 +448,29 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                               elevation: 10,
                               duration: Duration(seconds: 2),
                             );
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(snackBar);
                             return;
                           }
 
                           _makeanswers();
 
                           // Check if the current answer is wrong
-                          final currentQuestion = _randomizedQuestions[_currentIndex];
-                          if (_selectedAnswerIndex != currentQuestion.correctAnswer) {
+                          final currentQuestion =
+                              _randomizedQuestions[_currentIndex];
+                          if (_selectedAnswerIndex !=
+                              currentQuestion.correctAnswer) {
                             isAutoFail.value = true;
                             quizTimer?.cancel();
                             _calculateFinalScore();
+                            progressValue.value++;
+                            currentanswer.value++;
                             Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(builder: (context) => const ResultScreen()),
+                              MaterialPageRoute(
+                                builder: (context) => const ResultScreen(),
+                              ),
                               (route) => false,
                             );
                             return;
@@ -417,11 +481,14 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                             _calculateFinalScore();
                             Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(builder: (context) => const ResultScreen()),
+                              MaterialPageRoute(
+                                builder: (context) => const ResultScreen(),
+                              ),
                               (route) => false,
                             );
                           } else {
                             progressValue.value++;
+                            currentanswer.value++;
                             _nextQuestion();
                           }
                         },
@@ -445,7 +512,7 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                           ),
                         ),
                       );
-                    }
+                    },
                   ),
                 ),
               ],

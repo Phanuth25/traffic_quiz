@@ -23,6 +23,7 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
   final Map<int, int> _selectedAnswersHistory = {};
   int finalScore = 0;
   bool _isScoreCalculated = false;
+
   // 1. Create a fresh list to hold the randomized sequence
   final List<Question> _randomizedQuestions = [];
 
@@ -59,7 +60,7 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const ResultScreen()),
-            (route) => false,
+        (route) => false,
       );
     }
   }
@@ -128,6 +129,7 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -213,7 +215,7 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                     backgroundColor: Colors.grey.shade300,
                     valueColor: const AlwaysStoppedAnimation(Colors.deepPurple),
                   );
-                }
+                },
               ),
             ),
           ),
@@ -239,25 +241,66 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF6A5AE0), Color(0xFF8B7BFF)],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF6A5AE0),
+                                    Color(0xFF8B7BFF),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                currentQuestion.category,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'KhmerFont',
+                                ),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Text(
-                            currentQuestion.category,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'KhmerFont',
+                            ValueListenableBuilder(
+                              valueListenable: totalanswer,
+                              builder: (context, value, child) {
+                                return ValueListenableBuilder(
+                                  valueListenable: currentanswer,
+                                  builder: (context, value, child) {
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF6A5AE0),
+                                            Color(0xFF8B7BFF),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      child: Text(
+                                        '${currentanswer.value}/${totalanswer.value}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'KhmerFont',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                          ),
+                          ],
                         ),
 
                         const SizedBox(height: 24),
@@ -285,7 +328,9 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                                     height: 45,
                                     width: 45,
                                     decoration: BoxDecoration(
-                                      color: Colors.deepPurple.withValues(alpha: 0.1),
+                                      color: Colors.deepPurple.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: const Icon(
@@ -363,6 +408,7 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                     builder: (context, value, child) {
                       return OutlinedButton(
                         onPressed: () {
+                          currentanswer.value > 26 ? currentanswer.value-- : null;
                           _currentIndex > 0 ? progressValue.value-- : null;
                           _currentIndex > 0 ? _previousQuestion() : null;
                         },
@@ -390,7 +436,7 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                           ),
                         ),
                       );
-                    }
+                    },
                   ),
                 ),
 
@@ -430,7 +476,9 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                               duration: Duration(seconds: 2),
                             );
 
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(snackBar);
                           }
 
                           if (_selectedAnswerIndex != null) {
@@ -518,22 +566,26 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                                                   },
                                                   style: OutlinedButton.styleFrom(
                                                     padding:
-                                                    const EdgeInsets.symmetric(
-                                                      vertical: 16,
-                                                    ),
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 16,
+                                                        ),
                                                     side: BorderSide(
-                                                      color: Colors.grey.shade400,
+                                                      color:
+                                                          Colors.grey.shade400,
                                                     ),
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius:
-                                                      BorderRadius.circular(18),
+                                                          BorderRadius.circular(
+                                                            18,
+                                                          ),
                                                     ),
                                                   ),
                                                   child: const Text(
                                                     "អត់",
                                                     style: TextStyle(
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontFamily: 'KhmerFont',
                                                       color: Colors.black87,
                                                     ),
@@ -547,6 +599,8 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                                                 child: ElevatedButton(
                                                   onPressed: () {
                                                     _calculateFinalScore();
+                                                    progressValue.value++;
+                                                    currentanswer.value++;
                                                     Navigator.push(
                                                       context,
                                                       MaterialPageRoute(
@@ -557,23 +611,27 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                                                   },
                                                   style: ElevatedButton.styleFrom(
                                                     backgroundColor:
-                                                    Colors.deepPurple,
-                                                    foregroundColor: Colors.white,
+                                                        Colors.deepPurple,
+                                                    foregroundColor:
+                                                        Colors.white,
                                                     elevation: 0,
                                                     padding:
-                                                    const EdgeInsets.symmetric(
-                                                      vertical: 16,
-                                                    ),
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 16,
+                                                        ),
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius:
-                                                      BorderRadius.circular(18),
+                                                          BorderRadius.circular(
+                                                            18,
+                                                          ),
                                                     ),
                                                   ),
                                                   child: const Text(
                                                     "ទៅមុខ",
                                                     style: TextStyle(
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontFamily: 'KhmerFont',
                                                     ),
                                                   ),
@@ -589,6 +647,7 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                               );
                             } else {
                               progressValue.value++;
+                              currentanswer.value++;
                               _nextQuestion();
                             }
                           }
@@ -613,7 +672,7 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                           ),
                         ),
                       );
-                    }
+                    },
                   ),
                 ),
               ],
@@ -634,8 +693,8 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
         decoration: BoxDecoration(
           gradient: isSelected
               ? const LinearGradient(
-            colors: [Color(0xFF6A5AE0), Color(0xFF8B7BFF)],
-          )
+                  colors: [Color(0xFF6A5AE0), Color(0xFF8B7BFF)],
+                )
               : null,
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(22),
@@ -678,10 +737,10 @@ class _General2QuizScreenState extends State<General2QuizScreen> {
                   ),
                   child: isSelected
                       ? const Icon(
-                    Icons.check,
-                    size: 18,
-                    color: Colors.deepPurple,
-                  )
+                          Icons.check,
+                          size: 18,
+                          color: Colors.deepPurple,
+                        )
                       : null,
                 ),
 

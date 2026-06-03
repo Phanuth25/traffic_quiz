@@ -15,9 +15,21 @@ class ResultScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black87,
-        title: const Text(
-          'Quiz Result',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Column(
+          children: [
+            const Text(
+              'Quiz Result',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              '${currentanswer.value}/45',
+              style: const TextStyle(fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.grey,
+                fontFamily: 'KhmerFont',
+              ),
+            ),
+          ],
         ),
       ),
       body: Center(
@@ -125,6 +137,7 @@ class ResultScreen extends StatelessWidget {
                   onPressed: () {
                     resetQuiz();
                     progressValue.value = 1;
+                    currentanswer.value = 1;
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => const GeneralQuizScreen()),
