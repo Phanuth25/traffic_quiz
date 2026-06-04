@@ -11,11 +11,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       title: 'Cambodia Traffic Law Quiz',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
+      theme:  ThemeData(
+        brightness: Brightness.light,
         useMaterial3: true,
         primaryColor: Colors.deepPurple,
         scaffoldBackgroundColor: const Color(0xFFF4F7FB),
@@ -23,9 +23,7 @@ class MyApp extends StatelessWidget {
           seedColor: Colors.deepPurple,
           primary: Colors.deepPurple,
         ),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(fontSize: 16.0),
-        ),
+        textTheme: const TextTheme(bodyLarge: TextStyle(fontSize: 16.0)),
       ),
       home: const WelcomeScreen(),
     );
@@ -52,10 +50,7 @@ class WelcomeScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF6A5AE0),
-                      Color(0xFF8B7BFF),
-                    ],
+                    colors: [Color(0xFF6A5AE0), Color(0xFF8B7BFF)],
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -131,8 +126,7 @@ class WelcomeScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                        const GeneralQuizScreen(),
+                        builder: (context) => const GeneralQuizScreen(),
                       ),
                     );
                   },
@@ -140,9 +134,7 @@ class WelcomeScreen extends StatelessWidget {
                     elevation: 0,
                     backgroundColor: Colors.deepPurple,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 18,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),
@@ -175,13 +167,8 @@ class WelcomeScreen extends StatelessWidget {
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,
-                    side: const BorderSide(
-                      color: Colors.redAccent,
-                      width: 1.5,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 18,
-                    ),
+                    side: const BorderSide(color: Colors.redAccent, width: 1.5),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),
@@ -211,14 +198,9 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureCard({
-    required IconData icon,
-    required String title,
-  }) {
+  Widget _buildFeatureCard({required IconData icon, required String title}) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        vertical: 20,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -239,11 +221,7 @@ class WelcomeScreen extends StatelessWidget {
               color: Colors.deepPurple.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(
-              icon,
-              color: Colors.deepPurple,
-              size: 28,
-            ),
+            child: Icon(icon, color: Colors.deepPurple, size: 28),
           ),
 
           const SizedBox(height: 14),

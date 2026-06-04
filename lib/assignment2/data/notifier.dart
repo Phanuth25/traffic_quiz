@@ -30,4 +30,3 @@ void resetQuiz() {
 
 // Holds the current screen's score calculator
 VoidCallback? onTimeoutScoreCalculator;
-

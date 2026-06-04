@@ -91,6 +91,7 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(
@@ -153,11 +154,13 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                 color: Colors.black87,
               ),
             ),
+            const SizedBox(height: 4),
             Text(
-              'សំណួរទី ${_currentIndex + 1} / ${_questions.length}',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
+              'សំណួរទី ${_currentIndex + 1} / ${_questions.length} ',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: tt.labelLarge!.fontSize,
+                color: Colors.black,
                 fontFamily: 'KhmerFont',
               ),
             ),
@@ -684,6 +687,7 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
 
   Widget _buildAnswerOption(String answerText, int optionValue) {
     bool isSelected = _selectedAnswerIndex == optionValue;
+    final tt = Theme.of(context).textTheme;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -749,8 +753,7 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
                   child: Text(
                     answerText,
                     style: TextStyle(
-                      fontSize: 15,
-                      height: 1.5,
+                      fontSize: tt.headlineSmall!.copyWith(fontSize: 20).fontSize,
                       fontWeight: FontWeight.w500,
                       color: isSelected ? Colors.white : Colors.black87,
                       fontFamily: 'KhmerFont',

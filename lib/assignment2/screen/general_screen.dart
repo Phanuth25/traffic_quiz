@@ -128,6 +128,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(
@@ -190,11 +191,13 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                 color: Colors.black87,
               ),
             ),
+            const SizedBox(height: 4),
             Text(
               'សំណួរទី ${_currentIndex + 1} / ${_questions.length} ',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: tt.labelLarge!.fontSize,
+                color: Colors.black,
                 fontFamily: 'KhmerFont',
               ),
             ),
@@ -356,8 +359,8 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
 
                               Text(
                                 currentQuestion.question,
-                                style: const TextStyle(
-                                  fontSize: 18,
+                                style: TextStyle(
+                                  fontSize: tt.headlineSmall!.fontSize,
                                   height: 1.7,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black87,
@@ -687,7 +690,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
 
   Widget _buildAnswerOption(String answerText, int optionValue) {
     bool isSelected = _selectedAnswerIndex == optionValue;
-
+    final tt = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: AnimatedContainer(
@@ -747,13 +750,14 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                 ),
 
                 const SizedBox(width: 16),
-
+                //tt
                 Expanded(
                   child: Text(
                     answerText,
                     style: TextStyle(
-                      fontSize: 15,
-                      height: 1.5,
+                      fontSize: tt.headlineSmall!
+                          .copyWith(fontSize: 20)
+                          .fontSize,
                       fontWeight: FontWeight.w500,
                       color: isSelected ? Colors.white : Colors.black87,
                       fontFamily: 'KhmerFont',
