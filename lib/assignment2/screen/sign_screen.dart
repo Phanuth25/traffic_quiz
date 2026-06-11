@@ -18,6 +18,7 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
   _selectedAnswerIndex; // NEW: tracks the chosen option (1, 2, or 3) for the active question
   final List<SignQuestion> _questions = SignQuizData.signQuestions;
   final Map<int, int> _selectedAnswersHistory = {};
+  bool _isScoreCalculated = false;
 
   // 1. Create a fresh list to hold the randomized sequence
   final List<SignQuestion> _randomizedQuestions = [];
@@ -41,6 +42,9 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
   }
 
   void _calculateFinalScore() {
+    if (_isScoreCalculated) return;
+    _isScoreCalculated = true;
+
     int tempscore = 0;
 
     // Loop through every answered question in your history map
@@ -369,11 +373,11 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
 
                         const SizedBox(height: 28),
 
-                        _buildAnswerOption(currentQuestion.answer0, 0),
+                        _buildAnswerOption(currentQuestion.answer0, 0, currentQuestion.correctAnswer.toString()),
 
-                        _buildAnswerOption(currentQuestion.answer1, 1),
+                        _buildAnswerOption(currentQuestion.answer1, 1, currentQuestion.correctAnswer.toString()),
 
-                        _buildAnswerOption(currentQuestion.answer2, 2),
+                        _buildAnswerOption(currentQuestion.answer2, 2, currentQuestion.correctAnswer.toString()),
 
                         const SizedBox(height: 20),
                       ],
@@ -685,7 +689,7 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
     );
   }
 
-  Widget _buildAnswerOption(String answerText, int optionValue) {
+  Widget _buildAnswerOption(String answerText, int optionValue, String correctanswer) {
     bool isSelected = _selectedAnswerIndex == optionValue;
     final tt = Theme.of(context).textTheme;
 
@@ -702,7 +706,11 @@ class _SignQuizScreenState extends State<SignQuizScreen> {
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: isSelected ? Colors.transparent : Colors.grey.shade300,
+            color: isSelected
+                ? Colors.transparent
+                : correctanswer == optionValue.toString()
+                    ? Colors.grey.shade600
+                    : Colors.grey.shade300,
             width: 1.5,
           ),
           boxShadow: [

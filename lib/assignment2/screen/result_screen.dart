@@ -138,6 +138,7 @@ class ResultScreen extends StatelessWidget {
                     resetQuiz();
                     progressValue.value = 1;
                     currentanswer.value = 1;
+                    point.value = 0;
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => const GeneralQuizScreen()),

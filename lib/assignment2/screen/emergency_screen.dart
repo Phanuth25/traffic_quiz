@@ -19,6 +19,7 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
       EmergencyQuizData.emergencyQuestions;
   final Map<int, int> _selectedAnswersHistory = {};
   final List<EmergencyQuestion> _randomizedQuestions = [];
+  bool _isScoreCalculated = false;
 
   @override
   void initState() {
@@ -36,14 +37,17 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
   }
 
   void _calculateFinalScore() {
-    int finalScore = 0;
+    if (_isScoreCalculated) return;
+    _isScoreCalculated = true;
+
+    int tempscore = 0;
     _selectedAnswersHistory.forEach((questionIndex, chosenAnswerIndex) {
       final actualQuestion = _randomizedQuestions[questionIndex];
       if (chosenAnswerIndex == actualQuestion.correctAnswer) {
-        finalScore++;
-        point.value = point.value + finalScore;
+        tempscore++;
       }
     });
+    point.value = point.value + tempscore;
   }
 
   void _nextQuestion() {
@@ -311,9 +315,9 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
                           ),
                         ),
                         const SizedBox(height: 28),
-                        _buildAnswerOption(currentQuestion.answer1, 0),
-                        _buildAnswerOption(currentQuestion.answer2, 1),
-                        _buildAnswerOption(currentQuestion.answer3, 2),
+                        _buildAnswerOption(currentQuestion.answer1, 0, currentQuestion.correctAnswer.toString()),
+                        _buildAnswerOption(currentQuestion.answer2, 1, currentQuestion.correctAnswer.toString()),
+                        _buildAnswerOption(currentQuestion.answer3, 2, currentQuestion.correctAnswer.toString()),
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -619,7 +623,7 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
     );
   }
 
-  Widget _buildAnswerOption(String answerText, int optionValue) {
+  Widget _buildAnswerOption(String answerText, int optionValue, String correctanswer) {
     bool isSelected = _selectedAnswerIndex == optionValue;
     final tt = Theme.of(context).textTheme;
     return Padding(
@@ -635,7 +639,11 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: isSelected ? Colors.transparent : Colors.grey.shade300,
+            color: isSelected
+                ? Colors.transparent
+                : correctanswer == optionValue.toString()
+                    ? Colors.grey.shade600
+                    : Colors.grey.shade300,
             width: 1.5,
           ),
           boxShadow: [

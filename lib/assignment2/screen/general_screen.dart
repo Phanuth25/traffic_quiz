@@ -72,10 +72,9 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
   }
 
   void _calculateFinalScore() {
-    if (_isScoreCalculated) {
-      return;
-    }
+    if (_isScoreCalculated) return;
     _isScoreCalculated = true;
+    
     int tempscore = 0;
 
     // Loop through every answered question in your history map
@@ -93,7 +92,6 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
   }
 
   void _nextQuestion() {
-    _makeanswers();
     if (_currentIndex < _questions.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -127,12 +125,11 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(
-        automaticallyImplyLeading: _currentIndex == 0 ? true : false,
+        automaticallyImplyLeading: false,
         elevation: 0,
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -226,7 +223,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
           ),
 
           const SizedBox(height: 20),
-          //here
+
           Expanded(
             child: PageView.builder(
               controller: _pageController,
@@ -239,6 +236,7 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
               },
               itemBuilder: (context, index) {
                 final currentQuestion = _randomizedQuestions[index];
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: SingleChildScrollView(
@@ -373,11 +371,11 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
 
                         const SizedBox(height: 28),
 
-                        _buildAnswerOption(currentQuestion.answer1, 0),
+                        _buildAnswerOption(currentQuestion.answer1, 0, currentQuestion.correctAnswer.toString()),
 
-                        _buildAnswerOption(currentQuestion.answer2, 1),
+                        _buildAnswerOption(currentQuestion.answer2, 1, currentQuestion.correctAnswer.toString()),
 
-                        _buildAnswerOption(currentQuestion.answer3, 2),
+                        _buildAnswerOption(currentQuestion.answer3, 2, currentQuestion.correctAnswer.toString()),
 
                         const SizedBox(height: 20),
                       ],
@@ -413,8 +411,8 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                       return OutlinedButton(
                         onPressed: () {
                           if (_currentIndex > 0) {
-                            progressValue.value--;
                             currentanswer.value--;
+                            progressValue.value--;
                             _previousQuestion();
                           }
                         },
@@ -488,6 +486,8 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                           }
 
                           if (_selectedAnswerIndex != null) {
+                            _makeanswers();
+
                             if (_currentIndex == _questions.length - 1) {
                               showDialog(
                                 context: context,
@@ -630,10 +630,9 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                                                           ),
                                                     ),
                                                   ),
-                                                  child: Text(
+                                                  child: const Text(
                                                     "ទៅមុខ",
                                                     style: TextStyle(
-                                                      color: Colors.white,
                                                       fontSize: 16,
                                                       fontWeight:
                                                           FontWeight.bold,
@@ -651,8 +650,8 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                                 },
                               );
                             } else {
-                              currentanswer.value++;
                               progressValue.value++;
+                              currentanswer.value++;
                               _nextQuestion();
                             }
                           }
@@ -688,9 +687,10 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
     );
   }
 
-  Widget _buildAnswerOption(String answerText, int optionValue) {
+  Widget _buildAnswerOption(String answerText, int optionValue, String correctanswer) {
     bool isSelected = _selectedAnswerIndex == optionValue;
     final tt = Theme.of(context).textTheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: AnimatedContainer(
@@ -704,7 +704,11 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: isSelected ? Colors.transparent : Colors.grey.shade300,
+            color: isSelected
+                ? Colors.transparent
+                : correctanswer == optionValue.toString()
+                    ? Colors.grey.shade600
+                    : Colors.grey.shade300,
             width: 1.5,
           ),
           boxShadow: [
@@ -750,14 +754,12 @@ class _GeneralQuizScreenState extends State<GeneralQuizScreen> {
                 ),
 
                 const SizedBox(width: 16),
-                //tt
+
                 Expanded(
                   child: Text(
                     answerText,
                     style: TextStyle(
-                      fontSize: tt.headlineSmall!
-                          .copyWith(fontSize: 20)
-                          .fontSize,
+                      fontSize: tt.headlineSmall!.copyWith(fontSize: 20).fontSize,
                       fontWeight: FontWeight.w500,
                       color: isSelected ? Colors.white : Colors.black87,
                       fontFamily: 'KhmerFont',

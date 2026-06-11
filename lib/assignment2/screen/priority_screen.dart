@@ -351,9 +351,9 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
                           ),
                         ),
                         const SizedBox(height: 28),
-                        _buildAnswerOption(currentQuestion.answer0, 0),
-                        _buildAnswerOption(currentQuestion.answer1, 1),
-                        _buildAnswerOption(currentQuestion.answer2, 2),
+                        _buildAnswerOption(currentQuestion.answer0, 0, currentQuestion.correctAnswer.toString()),
+                        _buildAnswerOption(currentQuestion.answer1, 1, currentQuestion.correctAnswer.toString()),
+                        _buildAnswerOption(currentQuestion.answer2, 2, currentQuestion.correctAnswer.toString()),
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -528,7 +528,7 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
     );
   }
 
-  Widget _buildAnswerOption(String answerText, int optionValue) {
+  Widget _buildAnswerOption(String answerText, int optionValue, String correctanswer) {
     bool isSelected = _selectedAnswerIndex == optionValue;
     final tt = Theme.of(context).textTheme;
     return Padding(
@@ -544,7 +544,11 @@ class _PriorityQuizScreenState extends State<PriorityQuizScreen> {
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: isSelected ? Colors.transparent : Colors.grey.shade300,
+            color: isSelected
+                ? Colors.transparent
+                : correctanswer == optionValue.toString()
+                    ? Colors.grey.shade600
+                    : Colors.grey.shade300,
             width: 1.5,
           ),
           boxShadow: [

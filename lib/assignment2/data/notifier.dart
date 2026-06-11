@@ -26,6 +26,8 @@ void resetQuiz() {
   point.value = 0;
   isAutoFail.value = false;
   remainingSeconds.value = 2700; // Reset to 30 mins
+  progressValue.value = 1;
+  currentanswer.value = 1;
 }
 
 // Holds the current screen's score calculator
