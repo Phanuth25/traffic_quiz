@@ -642,7 +642,7 @@ class _EmergencyQuizScreenState extends State<EmergencyQuizScreen> {
             color: isSelected
                 ? Colors.transparent
                 : correctanswer == optionValue.toString()
-                    ? Colors.grey.shade600
+                    ? Colors.grey.shade200
                     : Colors.grey.shade300,
             width: 1.5,
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project2/assignment2/data/notifier.dart';
+import 'package:project2/assignment2/main.dart';
 import 'package:project2/assignment2/screen/general_screen.dart';
 
 class ResultScreen extends StatelessWidget {
@@ -353,7 +354,7 @@ class ResultScreen extends StatelessWidget {
                   resetQuiz();
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const GeneralQuizScreen()),
+                    MaterialPageRoute(builder: (context) => const WelcomeScreen()),
                     (route) => false,
                   );
                 },
